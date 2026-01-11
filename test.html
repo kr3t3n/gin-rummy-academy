@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Test Page</h1>
+    </header>
+    <main id="game-container">
+      <p style="padding: 20px; color: white;">If you see this, CSS is working.</p>
+    </main>
+  </div>
+
+  <script type="module">
+    try {
+      document.getElementById('game-container').innerHTML = '<p style="color: lime; padding: 20px;">JavaScript modules working!</p>';
+
+      // Test imports one by one
+      const { initLayout } = await import('./js/layout.js');
+      document.getElementById('game-container').innerHTML += '<p style="color: lime;">layout.js loaded</p>';
+
+      const { getAllLevelsStatus } = await import('./js/progress.js');
+      document.getElementById('game-container').innerHTML += '<p style="color: lime;">progress.js loaded</p>';
+
+      const { createCard, renderCard } = await import('./js/cards.js');
+      document.getElementById('game-container').innerHTML += '<p style="color: lime;">cards.js loaded</p>';
+
+      const { Level01 } = await import('./js/levels/level-01.js');
+      document.getElementById('game-container').innerHTML += '<p style="color: lime;">level-01.js loaded</p>';
+
+      document.getElementById('game-container').innerHTML += '<p style="color: lime; font-weight: bold;">All core modules loaded successfully!</p>';
+
+    } catch (e) {
+      document.getElementById('game-container').innerHTML = '<pre style="color: red; padding: 20px;">' + e.message + '\n' + e.stack + '</pre>';
+    }
+  </script>
+</body>
+</html>

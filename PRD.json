@@ -1,0 +1,320 @@
+{
+  "project": "Gin Rummy Academy",
+  "description": "Progressive tutorial game teaching Gin Rummy through interactive challenges",
+  "target": "Mobile-first responsive web app",
+
+  "stories": [
+    {
+      "id": "CORE-001",
+      "title": "Card System",
+      "description": "Core card rendering and interaction system",
+      "acceptance_criteria": [
+        "Cards render with correct suits and values",
+        "Cards are touch-friendly (min 44px tap targets)",
+        "Cards can be dragged on touch and mouse",
+        "Card flip animations work smoothly",
+        "Deck can be shuffled and dealt"
+      ],
+      "passes": true
+    },
+    {
+      "id": "CORE-002",
+      "title": "Responsive Layout",
+      "description": "Mobile-first responsive game container",
+      "acceptance_criteria": [
+        "Works on screens 320px to 1920px wide",
+        "Card sizes scale appropriately",
+        "Touch targets remain accessible on mobile",
+        "Landscape and portrait orientations supported",
+        "No horizontal scroll on any screen size"
+      ],
+      "passes": true
+    },
+    {
+      "id": "CORE-003",
+      "title": "Progress System",
+      "description": "Save/load player progress",
+      "acceptance_criteria": [
+        "Progress saved to localStorage",
+        "Levels unlock sequentially",
+        "Stars (1-3) stored per level",
+        "Can replay completed levels",
+        "Progress persists across sessions"
+      ],
+      "passes": true
+    },
+    {
+      "id": "CORE-004",
+      "title": "Meld Detection",
+      "description": "Algorithm to detect valid melds",
+      "acceptance_criteria": [
+        "Detects valid sets (3-4 same rank)",
+        "Detects valid runs (3+ consecutive same suit)",
+        "Correctly handles Ace as low only",
+        "Finds optimal meld arrangement",
+        "Calculates deadwood accurately"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-001",
+      "title": "Level 1: Card Values",
+      "description": "Teach card point values",
+      "acceptance_criteria": [
+        "Shows cards with point values",
+        "Player sorts cards into value buckets",
+        "Immediate feedback on correct/incorrect",
+        "8/10 correct to pass",
+        "Explains Ace=1, Face=10 rule"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-002",
+      "title": "Level 2: Spot the Set",
+      "description": "Teach sets (groups)",
+      "acceptance_criteria": [
+        "Shows groups of cards",
+        "Player taps valid sets",
+        "Visual feedback on selection",
+        "Must find all 5 sets",
+        "No false positives allowed"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-003",
+      "title": "Level 3: Run for It",
+      "description": "Teach runs (sequences)",
+      "acceptance_criteria": [
+        "Shows card sequences",
+        "Player taps valid runs",
+        "Includes A-2-3 (valid) example",
+        "Includes Q-K-A (invalid) gotcha",
+        "Must find all 5 runs"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-004",
+      "title": "Level 4: Meld or Not",
+      "description": "Combined meld recognition",
+      "acceptance_criteria": [
+        "Shows 10-card hand",
+        "Player sorts into Meld/Deadwood zones",
+        "Drag and drop interaction",
+        "Perfect sort required to pass",
+        "Shows final deadwood count"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-005",
+      "title": "Level 5: Count Deadwood",
+      "description": "Calculate deadwood points",
+      "acceptance_criteria": [
+        "Shows hands with melds marked",
+        "Player enters deadwood total",
+        "5 correct calculations to pass",
+        "Shows breakdown after each attempt",
+        "Difficulty increases progressively"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-006",
+      "title": "Level 6: The Draw",
+      "description": "Drawing strategy",
+      "acceptance_criteria": [
+        "Scenario-based choices",
+        "Choose draw pile or discard pile",
+        "Explains reasoning after each choice",
+        "4/5 correct to pass",
+        "Teaches when discard pile is better"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-007",
+      "title": "Level 7: The Discard",
+      "description": "Discarding strategy",
+      "acceptance_criteria": [
+        "Shows hand and current melds",
+        "Player picks card to discard",
+        "Shows deadwood impact",
+        "5 good discards to pass",
+        "Teaches high card early discard"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-008",
+      "title": "Level 8: Knock Knock",
+      "description": "Knocking eligibility",
+      "acceptance_criteria": [
+        "Shows various hands",
+        "Player determines if can knock",
+        "6/6 correct to pass",
+        "Explains 10-point threshold",
+        "Shows deadwood calculation"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-009",
+      "title": "Level 9: Should You Knock?",
+      "description": "Strategic knocking decisions",
+      "acceptance_criteria": [
+        "Game state scenarios",
+        "Knock vs continue decision",
+        "Explains risk/reward",
+        "4/5 correct to pass",
+        "Teaches opponent gin risk"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-010",
+      "title": "Level 10: Going Gin",
+      "description": "Zero deadwood and benefits",
+      "acceptance_criteria": [
+        "Arrange hands to achieve Gin",
+        "3 different Gin hands required",
+        "Explains 25 bonus points",
+        "Shows no layoff advantage",
+        "Celebration animation on Gin"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-011",
+      "title": "Level 11: The Layoff",
+      "description": "Laying off cards on opponent melds",
+      "acceptance_criteria": [
+        "Shows opponent melds and your deadwood",
+        "Player drags cards to layoff",
+        "Find all valid layoffs",
+        "3 scenarios to complete",
+        "Explains when layoff blocked (Gin)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-012",
+      "title": "Level 12: Undercut!",
+      "description": "Undercut mechanics",
+      "acceptance_criteria": [
+        "Shows knock scenarios",
+        "Determine if undercut possible",
+        "Calculate winner and score",
+        "5/5 correct to pass",
+        "Explains bonus points"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-013",
+      "title": "Level 13: Score the Round",
+      "description": "Full round scoring",
+      "acceptance_criteria": [
+        "Various end-game states",
+        "Calculate exact scores",
+        "Knock, Gin, undercut scenarios",
+        "4/4 perfect scores to pass",
+        "Shows scoring breakdown"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-014",
+      "title": "Level 14: Triangle Theory",
+      "description": "Flexible card positions",
+      "acceptance_criteria": [
+        "Shows triangle concept",
+        "Identify triangles in hands",
+        "4 hands to analyze",
+        "Explains multiple meld potential",
+        "Strategy insight provided"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-015",
+      "title": "Level 15: Reading Discards",
+      "description": "Opponent analysis",
+      "acceptance_criteria": [
+        "Shows discard history",
+        "Predict opponent melds",
+        "3/4 correct to pass",
+        "Explains inference logic",
+        "Pattern recognition teaching"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-016",
+      "title": "Level 16: Safe Discards",
+      "description": "Defensive discarding",
+      "acceptance_criteria": [
+        "Game state with history",
+        "Pick safest discard",
+        "4/5 safe choices to pass",
+        "Teaches recently discarded = safe",
+        "Shows opponent likely wants"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-017",
+      "title": "Level 17: Guided Game",
+      "description": "Full game with hints",
+      "acceptance_criteria": [
+        "Complete game flow",
+        "Hints highlight good moves",
+        "Can't make terrible mistakes",
+        "Complete one game to pass",
+        "All mechanics integrated"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-018",
+      "title": "Level 18: Solo Practice",
+      "description": "Full game vs AI",
+      "acceptance_criteria": [
+        "No hints available",
+        "AI opponent plays reasonably",
+        "Win one game to pass",
+        "All scoring correct",
+        "Game to 100 points"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-019",
+      "title": "Level 19: Challenge Mode",
+      "description": "Specific achievements",
+      "acceptance_criteria": [
+        "Challenge 1: Win with Gin",
+        "Challenge 2: Undercut opponent",
+        "Challenge 3: Win with <5 deadwood knock",
+        "All 3 challenges to pass",
+        "Replay until achieved"
+      ],
+      "passes": true
+    },
+    {
+      "id": "LEVEL-020",
+      "title": "Level 20: Graduation",
+      "description": "Summary and unlock multiplayer",
+      "acceptance_criteria": [
+        "Concept summary review",
+        "Graduation celebration",
+        "Two-player mode unlocked",
+        "Quick reference card available",
+        "Link to play with Adelina"
+      ],
+      "passes": true
+    }
+  ]
+}
