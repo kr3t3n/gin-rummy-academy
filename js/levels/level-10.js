@@ -17,19 +17,18 @@ function generateGinHands() {
     {
       id: 1,
       cards: shuffle([
-        createCard(suits[0], '7'), createCard(suits[1], '7'), createCard(suits[2], '7'),  // Set
-        createCard(suits[0], '4'), createCard(suits[0], '5'), createCard(suits[0], '6'),  // Run
-        createCard(suits[1], 'J'), createCard(suits[1], 'Q'), createCard(suits[1], 'K'),  // Run
-        createCard(suits[2], 'A')  // This will join a run or set
+        createCard(suits[0], '7'), createCard(suits[1], '7'), createCard(suits[2], '7'),  // Set of 7s
+        createCard(suits[0], '4'), createCard(suits[0], '5'), createCard(suits[0], '6'),  // Run 4-5-6
+        createCard(suits[1], '10'), createCard(suits[1], 'J'), createCard(suits[1], 'Q'), createCard(suits[1], 'K')  // Run 10-J-Q-K
       ]),
-      hint: 'Find one set and two runs'
+      hint: 'Find one set and one run of 3, one run of 4'
     },
     {
       id: 2,
       cards: shuffle([
-        createCard(suits[0], '3'), createCard(suits[1], '3'), createCard(suits[2], '3'), createCard(suits[3], '3'),  // Set of 4
-        createCard(suits[0], '9'), createCard(suits[1], '9'), createCard(suits[2], '9'),  // Set
-        createCard(suits[0], 'A'), createCard(suits[0], '2'), createCard(suits[0], '3')  // Wait, 3 is used. Fix:
+        createCard(suits[0], '3'), createCard(suits[1], '3'), createCard(suits[2], '3'), createCard(suits[3], '3'),  // Set of 4 threes
+        createCard(suits[0], '9'), createCard(suits[1], '9'), createCard(suits[2], '9'),  // Set of 9s
+        createCard(suits[0], '5'), createCard(suits[0], '6'), createCard(suits[0], '7')  // Run 5-6-7
       ]),
       hint: 'Two sets and one run'
     },
@@ -154,12 +153,13 @@ export class Level10 extends Level {
     zone.className = 'card-zone';
     zone.dataset.dropZone = `meld-${num}`;
     zone.style.cssText = `
-      min-height: calc(var(--card-height) * 0.6 + 16px);
+      min-height: calc(var(--card-width) * 1.4 + 16px);
       padding: 8px;
       display: flex;
       gap: 2px;
       align-items: center;
       justify-content: center;
+      overflow: visible;
     `;
 
     const label = document.createElement('span');
