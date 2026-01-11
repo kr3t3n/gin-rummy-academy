@@ -18,8 +18,8 @@ https://gin-rummy-learn.vercel.app/
     level-engine.js     # Base Level class all levels extend
     level-01.js         # Card Values
     level-02.js         # Spot the Set
-    ...
-    level-11-20.js      # Levels 11-20 (combined file)
+    ...                 # One file per level (level-01.js through level-20.js)
+    level-20.js         # Graduation
 index.html              # Entry point
 DESIGN.md               # Original design document
 PRD.json                # Requirements tracker with story completion status
@@ -153,6 +153,52 @@ User calculates and enters a number (deadwood, score).
 - [ ] Progress saves to localStorage
 - [ ] Works on 320px mobile viewport
 
+## Coding Best Practices
+
+### File Organization
+- **One level per file**: Each level should be in its own file (level-01.js, level-02.js, etc.)
+- Keeps files focused and easy to navigate
+- Prevents merge conflicts when working on different levels
+- Makes it easier to find and fix bugs
+
+### DOM Selectors
+- **Use specific classes**: Add meaningful classes to elements (e.g., `.meld-label`, `.top-bar-btn`)
+- Avoid generic selectors like `querySelector('span')` that can match unintended elements
+- Prefix level-specific classes to avoid conflicts
+
+### UI Patterns
+- **Top bar pattern**: Use `createTopBar()` for consistent progress + action button layout
+- Progress text on left, action button on right
+- Button starts faded (opacity: 0.3) for choice-based levels until selection made
+- Use `updateTopBarButton()` to change button text/action after user interaction
+
+### Card IDs
+- Format: `{rank}-{suit}` (e.g., `7-hearts`, `K-spades`)
+- Use `card.id` or `el.dataset.cardId` for comparisons
+- Never rely on element position for card identification
+
+### State Management
+- Keep scenario index and correct count as class properties
+- Reset in `reset()` method for level replay
+- Use `this.gameAreaEl` reference from base class
+
+### Level Structure Pattern
+```javascript
+export class LevelXX extends Level {
+  constructor() {
+    super({ number, title, subtitle, instructions, passingScore, starThresholds });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+  }
+
+  init(gameArea) { /* Setup and show first scenario */ }
+  showScenario(gameArea) { /* Render current scenario */ }
+  handleAnswer/checkAnswer() { /* Process user response */ }
+  reset() { /* Reset state and call super.reset() */ }
+}
+```
+
 ## Git Workflow
 
 Commits follow pattern:
@@ -160,6 +206,7 @@ Commits follow pattern:
 Fix Level X: brief description of what was fixed
 Add Level X: new level implementation
 Update metadata: changes to app.js LEVEL_DATA
+Split levels: reorganize into individual files
 ```
 
 Always test locally before pushing - Vercel deploys automatically.

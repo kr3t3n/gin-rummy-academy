@@ -15,10 +15,16 @@ import { Level07 } from './levels/level-07.js';
 import { Level08 } from './levels/level-08.js';
 import { Level09 } from './levels/level-09.js';
 import { Level10 } from './levels/level-10.js';
-import {
-  Level11, Level12, Level13, Level14, Level15,
-  Level16, Level17, Level18, Level19, Level20
-} from './levels/level-11-20.js';
+import { Level11 } from './levels/level-11.js';
+import { Level12 } from './levels/level-12.js';
+import { Level13 } from './levels/level-13.js';
+import { Level14 } from './levels/level-14.js';
+import { Level15 } from './levels/level-15.js';
+import { Level16 } from './levels/level-16.js';
+import { Level17 } from './levels/level-17.js';
+import { Level18 } from './levels/level-18.js';
+import { Level19 } from './levels/level-19.js';
+import { Level20 } from './levels/level-20.js';
 
 // Initialize responsive layout system
 initLayout();
