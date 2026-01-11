@@ -182,15 +182,15 @@ Games typically play to 100 points. Every decision echoes through the score shee
     lesson: 'Master the scoring system—points for knocking, Gin bonuses, and undercut rewards.'
   },
   14: {
-    title: 'Memory Game',
-    emoji: '🧠',
+    title: 'Triangle Theory',
+    emoji: '🔺',
     chapter: 'Advanced Tactics',
-    intro: `The discard pile is public memory. Great players remember what's been thrown—it tells them what's SAFE to discard and what might help opponents.
+    intro: `Some cards are more valuable than others—not because of their face value, but because of their flexibility.
 
-That 7♥ your opponent threw? They probably don't need hearts around 7. Those three Kings that passed? The fourth is orphaned forever.
+A "triangle" card can complete EITHER a set OR a run. The 7♥ with 7♠ 7♦ nearby AND 6♥ 8♥ waiting? That's a triangle. It gives you options.
 
-Your memory is a weapon. Sharpen it.`,
-    lesson: 'Track discards to make smarter decisions about what to keep and throw.'
+Hunt for triangles. They're your insurance policy against bad draws.`,
+    lesson: 'Identify flexible cards that can complete multiple meld combinations.'
   },
   15: {
     title: 'Reading Discards',
