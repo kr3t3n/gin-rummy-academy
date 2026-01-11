@@ -559,106 +559,881 @@ export class Level14 extends Level {
 
 export class Level15 extends Level {
   constructor() {
-    super({ number: 15, title: 'Reading Discards', subtitle: 'Opponent analysis', instructions: 'Predict what opponent is collecting based on discards', passingScore: 3 });
+    super({
+      number: 15,
+      title: 'Reading Discards',
+      subtitle: 'Opponent analysis',
+      instructions: 'Predict what opponent is collecting based on discards',
+      passingScore: 4,
+      starThresholds: { threeStarMax: 0, twoStarMax: 1 }
+    });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
   }
-  init(g) {
-    g.innerHTML = `
-      <div class="selection-count">Reading Discards</div>
-      <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 16px 0;">
-        <p style="margin-bottom: 12px;">If opponent discards: 3♥, 5♥, 9♥</p>
-        <p style="color: var(--success);">They probably DON'T need hearts!</p>
-        <p style="margin-top: 12px;">Safe to discard your hearts to them.</p>
+
+  init(gameArea) {
+    this.scenarios = [
+      {
+        discards: [
+          createCard('hearts', '3'),
+          createCard('hearts', '7'),
+          createCard('hearts', 'J')
+        ],
+        question: 'Based on these discards, what is opponent probably NOT collecting?',
+        options: ['Hearts', 'Spades', 'High cards'],
+        correctAnswer: 'Hearts',
+        explanation: 'They discarded three hearts - they clearly don\'t need that suit!'
+      },
+      {
+        discards: [
+          createCard('spades', 'K'),
+          createCard('diamonds', 'Q'),
+          createCard('hearts', 'J')
+        ],
+        question: 'What does this pattern suggest?',
+        options: ['They want face cards', 'They DON\'T want face cards', 'They want spades'],
+        correctAnswer: 'They DON\'T want face cards',
+        explanation: 'Three face cards discarded = they\'re likely building with low/mid cards.'
+      },
+      {
+        discards: [
+          createCard('clubs', '4'),
+          createCard('clubs', '6'),
+          createCard('diamonds', '5')
+        ],
+        question: 'What suit appears safe to discard to them?',
+        options: ['Clubs', 'Diamonds', 'Hearts'],
+        correctAnswer: 'Clubs',
+        explanation: 'They threw two clubs - that suit is likely safe to give them.'
+      },
+      {
+        discards: [
+          createCard('spades', '8'),
+          createCard('hearts', '8'),
+          createCard('clubs', '8')
+        ],
+        question: 'What can you infer from these discards?',
+        options: ['They don\'t need 8s', 'They want 8s', 'They want runs'],
+        correctAnswer: 'They don\'t need 8s',
+        explanation: 'Three 8s discarded! They definitely don\'t want that rank. Your 8s are safe.'
+      },
+      {
+        discards: [
+          createCard('diamonds', '2'),
+          createCard('diamonds', '3'),
+          createCard('diamonds', '5')
+        ],
+        question: 'Opponent picked up 4♦ from discard earlier. Now they discard these. What happened?',
+        options: ['They completed a diamonds run', 'They gave up on diamonds', 'They want high diamonds'],
+        correctAnswer: 'They completed a diamonds run',
+        explanation: 'They grabbed the 4♦ then discarded 2,3,5 - they likely made a run around the 4!'
+      }
+    ];
+    this.showScenario(gameArea);
+  }
+
+  showScenario(gameArea) {
+    gameArea.innerHTML = '';
+    const scenario = this.scenarios[this.currentScenario];
+
+    const progress = document.createElement('div');
+    progress.className = 'selection-count';
+    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    gameArea.appendChild(progress);
+
+    // Opponent's discards
+    const discardSection = document.createElement('div');
+    discardSection.style.cssText = 'background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 12px 0;';
+    discardSection.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px;">OPPONENT\'S RECENT DISCARDS</div>';
+
+    const discardRow = document.createElement('div');
+    discardRow.style.cssText = 'display: flex; gap: 8px; justify-content: center;';
+    scenario.discards.forEach(card => {
+      const el = renderCard(card, { draggable: false });
+      el.style.setProperty('--card-width', '50px');
+      discardRow.appendChild(el);
+    });
+    discardSection.appendChild(discardRow);
+    gameArea.appendChild(discardSection);
+
+    // Question
+    const questionEl = document.createElement('div');
+    questionEl.style.cssText = 'text-align: center; margin: 16px 0; font-weight: 500;';
+    questionEl.textContent = scenario.question;
+    gameArea.appendChild(questionEl);
+
+    // Options
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'choice-buttons';
+    optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-width: 300px; margin: 0 auto;';
+
+    scenario.options.forEach(option => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = option;
+      btn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer;';
+      btn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
+      optionsContainer.appendChild(btn);
+    });
+    gameArea.appendChild(optionsContainer);
+
+    const resultArea = document.createElement('div');
+    resultArea.id = 'result-area';
+    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    gameArea.appendChild(resultArea);
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+  }
+
+  handleAnswer(answer, scenario, gameArea) {
+    const isCorrect = answer === scenario.correctAnswer;
+    if (isCorrect) this.correctCount++;
+
+    const resultArea = document.getElementById('result-area');
+
+    // Disable buttons and highlight
+    gameArea.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      if (btn.textContent === scenario.correctAnswer) {
+        btn.style.borderColor = 'var(--success)';
+        btn.style.background = 'rgba(0, 210, 106, 0.2)';
+      } else if (btn.textContent === answer && !isCorrect) {
+        btn.style.borderColor = 'var(--error)';
+        btn.style.background = 'rgba(255, 107, 107, 0.2)';
+      }
+    });
+
+    resultArea.innerHTML = `
+      <div style="color: ${isCorrect ? 'var(--success)' : 'var(--error)'}; font-weight: 600; margin-bottom: 8px;">
+        ${isCorrect ? 'Correct!' : 'Not quite'}
       </div>
-      <p style="color: var(--text-muted); font-size: 13px; text-align: center;">Watch what they throw - it tells you what they don't want.</p>
-      <button class="btn btn-primary" style="margin-top: 20px;" onclick="">Continue</button>
+      <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
     `;
-    g.querySelector('button').addEventListener('click', () => { this.score = 3; this.complete(true); });
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.marginTop = '12px';
+
+      if (this.currentScenario < this.scenarios.length - 1) {
+        nextBtn.textContent = 'Next';
+        nextBtn.addEventListener('click', () => {
+          this.currentScenario++;
+          this.showScenario(gameArea);
+        });
+      } else {
+        nextBtn.textContent = 'Complete';
+        nextBtn.addEventListener('click', () => {
+          this.score = this.correctCount;
+          this.complete(this.correctCount >= this.passingScore);
+        });
+      }
+      resultArea.appendChild(nextBtn);
+    }, 300);
+  }
+
+  reset() {
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+    super.reset();
   }
 }
 
 export class Level16 extends Level {
   constructor() {
-    super({ number: 16, title: 'Safe Discards', subtitle: 'Defensive play', instructions: 'Pick the safest card to discard', passingScore: 4 });
+    super({
+      number: 16,
+      title: 'Safe Discards',
+      subtitle: 'Defensive play',
+      instructions: 'Pick the safest card to discard',
+      passingScore: 4,
+      starThresholds: { threeStarMax: 0, twoStarMax: 1 }
+    });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
   }
-  init(g) {
-    g.innerHTML = `
-      <div class="selection-count">Safe Discards</div>
-      <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin: 16px 0;">
-        <p style="font-weight: 600; margin-bottom: 12px;">Safe discard rules:</p>
-        <ul style="text-align: left; padding-left: 20px; line-height: 1.8;">
-          <li>Cards opponent recently discarded = SAFE</li>
-          <li>Cards matching their discards (same rank) = SAFE-ish</li>
-          <li>Cards near their pickups from discard = DANGEROUS</li>
-        </ul>
+
+  init(gameArea) {
+    this.scenarios = [
+      {
+        oppDiscards: [createCard('hearts', '7'), createCard('hearts', '9')],
+        oppPickedUp: null,
+        yourDeadwood: [
+          createCard('hearts', '5'),   // SAFE - they're dumping hearts
+          createCard('spades', '8'),
+          createCard('clubs', 'K'),
+          createCard('diamonds', '6')
+        ],
+        safestId: '5-hearts',
+        explanation: 'Hearts are safe - opponent has been discarding them!'
+      },
+      {
+        oppDiscards: [createCard('clubs', '3')],
+        oppPickedUp: createCard('diamonds', '7'),
+        yourDeadwood: [
+          createCard('diamonds', '6'),  // DANGEROUS - near their pickup
+          createCard('diamonds', '8'),  // DANGEROUS - near their pickup
+          createCard('spades', 'K'),
+          createCard('clubs', '4')      // SAFE - same rank/suit as their discard
+        ],
+        safestId: '4-clubs',
+        explanation: 'The 4♣ is safest - similar to what they discarded. Avoid diamonds near their 7♦ pickup!'
+      },
+      {
+        oppDiscards: [createCard('spades', 'Q'), createCard('diamonds', 'K')],
+        oppPickedUp: null,
+        yourDeadwood: [
+          createCard('hearts', 'J'),   // SAFE-ish - they\'re dumping face cards
+          createCard('clubs', '5'),
+          createCard('spades', '3'),
+          createCard('diamonds', '9')
+        ],
+        safestId: 'J-hearts',
+        explanation: 'Face cards seem safe - they discarded Q and K. The J♥ is your best bet.'
+      },
+      {
+        oppDiscards: [createCard('hearts', '4')],
+        oppPickedUp: createCard('hearts', '6'),
+        yourDeadwood: [
+          createCard('hearts', '5'),   // VERY DANGEROUS - exactly what they need!
+          createCard('clubs', 'Q'),
+          createCard('spades', '2'),
+          createCard('diamonds', '8')
+        ],
+        safestId: '2-spades',
+        explanation: 'NEVER give them the 5♥! They picked up 6♥ after discarding 4♥ - they\'re building 5-6-7 hearts! Low spades are safest.'
+      },
+      {
+        oppDiscards: [createCard('clubs', '8'), createCard('spades', '8')],
+        oppPickedUp: null,
+        yourDeadwood: [
+          createCard('hearts', '8'),   // VERY SAFE - they clearly don\'t want 8s
+          createCard('diamonds', '4'),
+          createCard('clubs', 'J'),
+          createCard('spades', '6')
+        ],
+        safestId: '8-hearts',
+        explanation: 'They dumped two 8s - they definitely don\'t need the third! Your 8♥ is very safe.'
+      }
+    ];
+    this.showScenario(gameArea);
+  }
+
+  showScenario(gameArea) {
+    gameArea.innerHTML = '';
+    const scenario = this.scenarios[this.currentScenario];
+
+    const progress = document.createElement('div');
+    progress.className = 'selection-count';
+    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    gameArea.appendChild(progress);
+
+    // Opponent info section
+    const oppSection = document.createElement('div');
+    oppSection.style.cssText = 'background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 12px 0;';
+
+    // Discards row
+    let oppHtml = '<div style="color: var(--text-muted); font-size: 11px; margin-bottom: 6px;">OPPONENT DISCARDED:</div>';
+    oppSection.innerHTML = oppHtml;
+
+    const discardRow = document.createElement('div');
+    discardRow.style.cssText = 'display: flex; gap: 6px; justify-content: center; margin-bottom: 8px;';
+    scenario.oppDiscards.forEach(card => {
+      const el = renderCard(card, { draggable: false });
+      el.style.setProperty('--card-width', '40px');
+      discardRow.appendChild(el);
+    });
+    oppSection.appendChild(discardRow);
+
+    // Pickup info
+    if (scenario.oppPickedUp) {
+      const pickupInfo = document.createElement('div');
+      pickupInfo.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);';
+      pickupInfo.innerHTML = '<span style="color: var(--error); font-size: 11px;">⚠️ PICKED UP:</span>';
+      const pickupCard = renderCard(scenario.oppPickedUp, { draggable: false });
+      pickupCard.style.setProperty('--card-width', '40px');
+      pickupInfo.appendChild(pickupCard);
+      oppSection.appendChild(pickupInfo);
+    }
+    gameArea.appendChild(oppSection);
+
+    // Question
+    const questionEl = document.createElement('div');
+    questionEl.style.cssText = 'text-align: center; margin: 12px 0; font-size: 14px;';
+    questionEl.textContent = 'Which card is SAFEST to discard?';
+    gameArea.appendChild(questionEl);
+
+    // Your deadwood options
+    const yourSection = document.createElement('div');
+    yourSection.style.cssText = 'display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 16px 0;';
+
+    scenario.yourDeadwood.forEach(card => {
+      const el = renderCard(card, { draggable: false });
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => this.handleSelection(card.id, scenario, gameArea));
+      yourSection.appendChild(el);
+    });
+    gameArea.appendChild(yourSection);
+
+    const resultArea = document.createElement('div');
+    resultArea.id = 'result-area';
+    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    gameArea.appendChild(resultArea);
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+  }
+
+  handleSelection(cardId, scenario, gameArea) {
+    const isCorrect = cardId === scenario.safestId;
+    if (isCorrect) this.correctCount++;
+
+    const resultArea = document.getElementById('result-area');
+
+    // Disable and highlight cards
+    gameArea.querySelectorAll('.card').forEach(el => {
+      el.style.pointerEvents = 'none';
+      if (el.dataset.cardId === scenario.safestId) {
+        el.classList.add('correct');
+      } else if (el.dataset.cardId === cardId && !isCorrect) {
+        el.classList.add('incorrect');
+      }
+    });
+
+    resultArea.innerHTML = `
+      <div style="color: ${isCorrect ? 'var(--success)' : 'var(--error)'}; font-weight: 600; margin-bottom: 8px;">
+        ${isCorrect ? 'Good read!' : 'Risky choice!'}
       </div>
-      <button class="btn btn-primary" style="margin-top: 16px;" onclick="">Got it!</button>
+      <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
     `;
-    g.querySelector('button').addEventListener('click', () => { this.score = 4; this.complete(true); });
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.marginTop = '12px';
+
+      if (this.currentScenario < this.scenarios.length - 1) {
+        nextBtn.textContent = 'Next';
+        nextBtn.addEventListener('click', () => {
+          this.currentScenario++;
+          this.showScenario(gameArea);
+        });
+      } else {
+        nextBtn.textContent = 'Complete';
+        nextBtn.addEventListener('click', () => {
+          this.score = this.correctCount;
+          this.complete(this.correctCount >= this.passingScore);
+        });
+      }
+      resultArea.appendChild(nextBtn);
+    }, 300);
+  }
+
+  reset() {
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+    super.reset();
   }
 }
 
 export class Level17 extends Level {
   constructor() {
-    super({ number: 17, title: 'Guided Game', subtitle: 'Full game with hints', instructions: 'Play a complete game with guidance', passingScore: 1 });
+    super({
+      number: 17,
+      title: 'Defensive Play',
+      subtitle: 'Protect your hand',
+      instructions: 'Make the safest choice in each defensive scenario',
+      passingScore: 4,
+      starThresholds: { threeStarMax: 0, twoStarMax: 1 }
+    });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
   }
-  init(g) {
-    g.innerHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🎮</div>
-        <h3 style="margin-bottom: 12px;">Ready for a Full Game!</h3>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">
-          You've learned all the basics. In a real game, hints would guide your moves.
-        </p>
-        <p style="color: var(--success); font-size: 14px;">
-          For now, consider this level complete!
-        </p>
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="">Complete Level</button>
+
+  init(gameArea) {
+    this.scenarios = [
+      {
+        situation: 'Opponent knocked last round with a low deadwood (3). They seem aggressive.',
+        question: 'How should you adjust your strategy?',
+        options: [
+          { text: 'Play more aggressively - knock early too', correct: false },
+          { text: 'Focus on Gin - don\'t give them undercut chances', correct: true },
+          { text: 'Keep high cards for flexibility', correct: false }
+        ],
+        explanation: 'Against aggressive knockers, aim for Gin. If you knock with 8-10 deadwood, they might undercut you!'
+      },
+      {
+        situation: 'You have: 7♥ 8♥ 9♥ (run), K♠ K♦ (pair), and 5 deadwood cards. Opponent just picked up a King from discard.',
+        question: 'What should you do with your King pair?',
+        options: [
+          { text: 'Break it up - discard a King', correct: false },
+          { text: 'Keep building - they can\'t have all 4 Kings', correct: true },
+          { text: 'Discard both Kings immediately', correct: false }
+        ],
+        explanation: 'Keep your Kings! They picked up ONE King, but there are still 2 others. Your pair is still valuable.'
+      },
+      {
+        situation: 'Early game. You draw and your deadwood is 32. Opponent is drawing from deck (not taking discards).',
+        question: 'What does their behavior suggest?',
+        options: [
+          { text: 'They have a bad hand - attack!', correct: false },
+          { text: 'Nothing - it\'s too early to tell', correct: true },
+          { text: 'They\'re close to Gin', correct: false }
+        ],
+        explanation: 'Early game deck draws are normal - not enough info yet. Keep playing your strategy.'
+      },
+      {
+        situation: 'Opponent has been discarding only low cards (2s, 3s, 4s). They seem to grab mid-range cards.',
+        question: 'What are they likely building?',
+        options: [
+          { text: 'Sets of low cards', correct: false },
+          { text: 'Runs in the 5-10 range', correct: true },
+          { text: 'Face card combinations', correct: false }
+        ],
+        explanation: 'They\'re throwing lows and keeping mids - likely building runs around 6-7-8-9 range. Be careful!'
+      },
+      {
+        situation: 'You have 6 deadwood but your only meld-in-progress is waiting for a card opponent likely has.',
+        question: 'Should you knock now?',
+        options: [
+          { text: 'Yes - 6 is a safe knock', correct: true },
+          { text: 'No - wait for the meld', correct: false },
+          { text: 'Discard from the meld attempt first', correct: false }
+        ],
+        explanation: 'Knock! 6 deadwood is excellent. Waiting for a card they probably have is risky - take your win.'
+      }
+    ];
+    this.showScenario(gameArea);
+  }
+
+  showScenario(gameArea) {
+    gameArea.innerHTML = '';
+    const scenario = this.scenarios[this.currentScenario];
+
+    const progress = document.createElement('div');
+    progress.className = 'selection-count';
+    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    gameArea.appendChild(progress);
+
+    // Situation
+    const situationEl = document.createElement('div');
+    situationEl.style.cssText = 'background: rgba(255,255,255,0.05); padding: 14px; border-radius: 8px; margin: 12px 0; font-size: 14px; line-height: 1.5;';
+    situationEl.textContent = scenario.situation;
+    gameArea.appendChild(situationEl);
+
+    // Question
+    const questionEl = document.createElement('div');
+    questionEl.style.cssText = 'text-align: center; margin: 16px 0; font-weight: 600;';
+    questionEl.textContent = scenario.question;
+    gameArea.appendChild(questionEl);
+
+    // Options
+    const optionsContainer = document.createElement('div');
+    optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-width: 350px; margin: 0 auto;';
+
+    scenario.options.forEach((option, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.dataset.idx = idx;
+      btn.textContent = option.text;
+      btn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
+      btn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
+      optionsContainer.appendChild(btn);
+    });
+    gameArea.appendChild(optionsContainer);
+
+    const resultArea = document.createElement('div');
+    resultArea.id = 'result-area';
+    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    gameArea.appendChild(resultArea);
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+  }
+
+  handleAnswer(selectedOption, scenario, gameArea) {
+    const isCorrect = selectedOption.correct;
+    if (isCorrect) this.correctCount++;
+
+    const resultArea = document.getElementById('result-area');
+
+    // Highlight buttons
+    gameArea.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      const idx = parseInt(btn.dataset.idx);
+      if (scenario.options[idx].correct) {
+        btn.style.borderColor = 'var(--success)';
+        btn.style.background = 'rgba(0, 210, 106, 0.2)';
+      } else if (btn.textContent === selectedOption.text && !isCorrect) {
+        btn.style.borderColor = 'var(--error)';
+        btn.style.background = 'rgba(255, 107, 107, 0.2)';
+      }
+    });
+
+    resultArea.innerHTML = `
+      <div style="color: ${isCorrect ? 'var(--success)' : 'var(--error)'}; font-weight: 600; margin-bottom: 8px;">
+        ${isCorrect ? 'Smart play!' : 'Not ideal'}
       </div>
+      <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
     `;
-    g.querySelector('button').addEventListener('click', () => { this.score = 1; this.complete(true); });
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.marginTop = '12px';
+
+      if (this.currentScenario < this.scenarios.length - 1) {
+        nextBtn.textContent = 'Next';
+        nextBtn.addEventListener('click', () => {
+          this.currentScenario++;
+          this.showScenario(gameArea);
+        });
+      } else {
+        nextBtn.textContent = 'Complete';
+        nextBtn.addEventListener('click', () => {
+          this.score = this.correctCount;
+          this.complete(this.correctCount >= this.passingScore);
+        });
+      }
+      resultArea.appendChild(nextBtn);
+    }, 300);
+  }
+
+  reset() {
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+    super.reset();
   }
 }
 
 export class Level18 extends Level {
   constructor() {
-    super({ number: 18, title: 'Solo Practice', subtitle: 'Full game vs AI', instructions: 'Play without hints', passingScore: 1 });
+    super({
+      number: 18,
+      title: 'End Game',
+      subtitle: 'Final decisions',
+      instructions: 'Make the right call in these late-game situations',
+      passingScore: 4,
+      starThresholds: { threeStarMax: 0, twoStarMax: 1 }
+    });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
   }
-  init(g) {
-    g.innerHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🤖</div>
-        <h3 style="margin-bottom: 12px;">AI Practice Coming Soon</h3>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">
-          This would be a full game against an AI opponent with no hints.
-        </p>
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="">Skip for Now</button>
+
+  init(gameArea) {
+    this.scenarios = [
+      {
+        situation: 'Stock is running low (5 cards left). You have 8 deadwood. Opponent seems close.',
+        question: 'What should you do?',
+        options: [
+          { text: 'Knock now with 8', correct: true },
+          { text: 'Wait for Gin', correct: false },
+          { text: 'Keep drawing', correct: false }
+        ],
+        explanation: 'Knock! With only 5 cards left, waiting is risky. 8 deadwood is good enough - take the win!'
+      },
+      {
+        situation: 'You have 4 deadwood. Opponent just knocked with 9.',
+        question: 'What happens?',
+        options: [
+          { text: 'You score 5 points', correct: false },
+          { text: 'Undercut! You score 25 + 5 = 30', correct: true },
+          { text: 'It\'s a tie', correct: false }
+        ],
+        explanation: 'Undercut! Your 4 < their 9. You get 25 bonus + 5 point difference = 30 points!'
+      },
+      {
+        situation: 'You have Gin (0 deadwood). You\'re about to knock.',
+        question: 'How many bonus points do you get?',
+        options: [
+          { text: '10 points', correct: false },
+          { text: '20 points', correct: false },
+          { text: '25 points', correct: true }
+        ],
+        explanation: 'Gin bonus is 25 points, plus whatever deadwood your opponent has!'
+      },
+      {
+        situation: 'Last card of stock. Neither player knocked. What happens?',
+        question: 'Who wins this round?',
+        options: [
+          { text: 'Player with lower deadwood', correct: false },
+          { text: 'Nobody - it\'s a draw', correct: true },
+          { text: 'The player who dealt', correct: false }
+        ],
+        explanation: 'Draw! If the stock runs out without a knock, no one scores. Shuffle and re-deal.'
+      },
+      {
+        situation: 'Score is 95-90 (game to 100). You have 3 deadwood. Opponent likely has ~15.',
+        question: 'Should you knock?',
+        options: [
+          { text: 'Yes - win the game now!', correct: true },
+          { text: 'No - go for Gin for more points', correct: false },
+          { text: 'Wait to see what they discard', correct: false }
+        ],
+        explanation: 'Knock and win! You\'d score ~12 points, reaching 107. Going for Gin risks letting them catch up.'
+      }
+    ];
+    this.showScenario(gameArea);
+  }
+
+  showScenario(gameArea) {
+    gameArea.innerHTML = '';
+    const scenario = this.scenarios[this.currentScenario];
+
+    const progress = document.createElement('div');
+    progress.className = 'selection-count';
+    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    gameArea.appendChild(progress);
+
+    // Late game badge
+    const badge = document.createElement('div');
+    badge.style.cssText = 'display: inline-block; background: var(--accent); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-bottom: 12px;';
+    badge.textContent = '⏰ LATE GAME';
+    gameArea.appendChild(badge);
+
+    // Situation
+    const situationEl = document.createElement('div');
+    situationEl.style.cssText = 'background: rgba(255,255,255,0.05); padding: 14px; border-radius: 8px; margin: 8px 0; font-size: 14px; line-height: 1.5;';
+    situationEl.textContent = scenario.situation;
+    gameArea.appendChild(situationEl);
+
+    // Question
+    const questionEl = document.createElement('div');
+    questionEl.style.cssText = 'text-align: center; margin: 16px 0; font-weight: 600;';
+    questionEl.textContent = scenario.question;
+    gameArea.appendChild(questionEl);
+
+    // Options
+    const optionsContainer = document.createElement('div');
+    optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-width: 350px; margin: 0 auto;';
+
+    scenario.options.forEach((option, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.dataset.idx = idx;
+      btn.textContent = option.text;
+      btn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
+      btn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
+      optionsContainer.appendChild(btn);
+    });
+    gameArea.appendChild(optionsContainer);
+
+    const resultArea = document.createElement('div');
+    resultArea.id = 'result-area';
+    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    gameArea.appendChild(resultArea);
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+  }
+
+  handleAnswer(selectedOption, scenario, gameArea) {
+    const isCorrect = selectedOption.correct;
+    if (isCorrect) this.correctCount++;
+
+    const resultArea = document.getElementById('result-area');
+
+    gameArea.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      const idx = parseInt(btn.dataset.idx);
+      if (scenario.options[idx].correct) {
+        btn.style.borderColor = 'var(--success)';
+        btn.style.background = 'rgba(0, 210, 106, 0.2)';
+      } else if (btn.textContent === selectedOption.text && !isCorrect) {
+        btn.style.borderColor = 'var(--error)';
+        btn.style.background = 'rgba(255, 107, 107, 0.2)';
+      }
+    });
+
+    resultArea.innerHTML = `
+      <div style="color: ${isCorrect ? 'var(--success)' : 'var(--error)'}; font-weight: 600; margin-bottom: 8px;">
+        ${isCorrect ? 'Correct!' : 'Not quite'}
       </div>
+      <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
     `;
-    g.querySelector('button').addEventListener('click', () => { this.score = 1; this.complete(true); });
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.marginTop = '12px';
+
+      if (this.currentScenario < this.scenarios.length - 1) {
+        nextBtn.textContent = 'Next';
+        nextBtn.addEventListener('click', () => {
+          this.currentScenario++;
+          this.showScenario(gameArea);
+        });
+      } else {
+        nextBtn.textContent = 'Complete';
+        nextBtn.addEventListener('click', () => {
+          this.score = this.correctCount;
+          this.complete(this.correctCount >= this.passingScore);
+        });
+      }
+      resultArea.appendChild(nextBtn);
+    }, 300);
+  }
+
+  reset() {
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+    super.reset();
   }
 }
 
 export class Level19 extends Level {
   constructor() {
-    super({ number: 19, title: 'Challenge Mode', subtitle: 'Specific achievements', instructions: 'Complete special challenges', passingScore: 1 });
+    super({
+      number: 19,
+      title: 'Quick Fire Quiz',
+      subtitle: 'Test your knowledge',
+      instructions: 'Answer these rapid-fire questions from everything you\'ve learned',
+      passingScore: 7,
+      starThresholds: { threeStarMax: 1, twoStarMax: 2 }
+    });
+    this.questions = [];
+    this.currentQuestion = 0;
+    this.correctCount = 0;
   }
-  init(g) {
-    g.innerHTML = `
+
+  init(gameArea) {
+    this.questions = shuffle([
+      { q: 'What is the value of a King in deadwood?', a: '10', wrong: ['13', '1'] },
+      { q: 'How many cards in a starting Gin Rummy hand?', a: '10', wrong: ['7', '13'] },
+      { q: 'Minimum cards for a valid meld?', a: '3', wrong: ['2', '4'] },
+      { q: 'Can Ace be high (after King) in a run?', a: 'No', wrong: ['Yes', 'Sometimes'] },
+      { q: 'What\'s the Gin bonus?', a: '25 points', wrong: ['10 points', '50 points'] },
+      { q: 'What\'s the undercut bonus?', a: '25 points', wrong: ['15 points', '10 points'] },
+      { q: 'Maximum deadwood to knock?', a: '10', wrong: ['5', '15'] },
+      { q: 'What happens if stock runs out?', a: 'Draw - no score', wrong: ['Low deadwood wins', 'Dealer wins'] },
+      { q: 'Can you lay off cards after opponent goes Gin?', a: 'No', wrong: ['Yes', 'Only one card'] },
+      { q: 'Value of an Ace?', a: '1 point', wrong: ['10 points', '11 points'] }
+    ]).slice(0, 10);
+    this.showQuestion(gameArea);
+  }
+
+  showQuestion(gameArea) {
+    gameArea.innerHTML = '';
+    const q = this.questions[this.currentQuestion];
+
+    // Progress bar
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = 'display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;';
+    for (let i = 0; i < this.questions.length; i++) {
+      const dot = document.createElement('div');
+      dot.style.cssText = `width: 20px; height: 4px; border-radius: 2px; background: ${i < this.currentQuestion ? 'var(--success)' : i === this.currentQuestion ? 'var(--accent)' : 'rgba(255,255,255,0.2)'};`;
+      progressBar.appendChild(dot);
+    }
+    gameArea.appendChild(progressBar);
+
+    // Question number
+    const qNum = document.createElement('div');
+    qNum.style.cssText = 'color: var(--text-muted); font-size: 12px; text-align: center; margin-bottom: 8px;';
+    qNum.textContent = `Question ${this.currentQuestion + 1}/${this.questions.length}`;
+    gameArea.appendChild(qNum);
+
+    // Question
+    const questionEl = document.createElement('div');
+    questionEl.style.cssText = 'text-align: center; font-size: 18px; font-weight: 600; margin: 16px 0 24px 0;';
+    questionEl.textContent = q.q;
+    gameArea.appendChild(questionEl);
+
+    // Shuffle answers
+    const answers = shuffle([q.a, ...q.wrong]);
+
+    // Answer buttons
+    const optionsContainer = document.createElement('div');
+    optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 10px; max-width: 280px; margin: 0 auto;';
+
+    answers.forEach(answer => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = answer;
+      btn.style.cssText = 'padding: 14px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; font-size: 15px; transition: all 0.15s;';
+      btn.addEventListener('click', () => this.handleAnswer(answer, q.a, gameArea));
+      optionsContainer.appendChild(btn);
+    });
+    gameArea.appendChild(optionsContainer);
+
+    // Score
+    const scoreEl = document.createElement('div');
+    scoreEl.style.cssText = 'text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 13px;';
+    scoreEl.textContent = `Score: ${this.correctCount}/${this.currentQuestion}`;
+    gameArea.appendChild(scoreEl);
+  }
+
+  handleAnswer(selected, correct, gameArea) {
+    const isCorrect = selected === correct;
+    if (isCorrect) this.correctCount++;
+
+    // Flash feedback
+    gameArea.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      if (btn.textContent === correct) {
+        btn.style.borderColor = 'var(--success)';
+        btn.style.background = 'rgba(0, 210, 106, 0.3)';
+      } else if (btn.textContent === selected && !isCorrect) {
+        btn.style.borderColor = 'var(--error)';
+        btn.style.background = 'rgba(255, 107, 107, 0.3)';
+      }
+    });
+
+    // Quick transition to next
+    setTimeout(() => {
+      if (this.currentQuestion < this.questions.length - 1) {
+        this.currentQuestion++;
+        this.showQuestion(gameArea);
+      } else {
+        this.showResults(gameArea);
+      }
+    }, 600);
+  }
+
+  showResults(gameArea) {
+    const passed = this.correctCount >= this.passingScore;
+    const percentage = Math.round((this.correctCount / this.questions.length) * 100);
+
+    gameArea.innerHTML = `
       <div style="text-align: center; padding: 20px;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🏆</div>
-        <h3 style="margin-bottom: 12px;">Challenges</h3>
-        <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; text-align: left;">
-          <p style="margin-bottom: 8px;">☐ Win with Gin</p>
-          <p style="margin-bottom: 8px;">☐ Undercut your opponent</p>
-          <p>☐ Win with under 5 deadwood knock</p>
-        </div>
-        <p style="color: var(--text-muted); margin-top: 16px; font-size: 13px;">
-          Complete these in practice games!
-        </p>
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="">Continue</button>
+        <div style="font-size: 48px; margin-bottom: 16px;">${passed ? '🎯' : '📚'}</div>
+        <h3 style="margin-bottom: 8px; color: ${passed ? 'var(--success)' : 'var(--error)'};">
+          ${passed ? 'Well Done!' : 'Keep Studying!'}
+        </h3>
+        <div style="font-size: 32px; font-weight: 700; margin: 16px 0;">${this.correctCount}/${this.questions.length}</div>
+        <div style="color: var(--text-muted); margin-bottom: 20px;">${percentage}% correct</div>
+        <button class="btn btn-primary" id="complete-btn">${passed ? 'Complete' : 'Try Again'}</button>
       </div>
     `;
-    g.querySelector('button').addEventListener('click', () => { this.score = 1; this.complete(true); });
+
+    document.getElementById('complete-btn').addEventListener('click', () => {
+      if (passed) {
+        this.score = this.correctCount;
+        this.complete(true);
+      } else {
+        this.reset();
+        this.init(gameArea);
+      }
+    });
+  }
+
+  reset() {
+    this.questions = [];
+    this.currentQuestion = 0;
+    this.correctCount = 0;
+    super.reset();
   }
 }
 

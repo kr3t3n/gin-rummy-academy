@@ -226,22 +226,26 @@ Defensive play isn't glamorous, but it's how underdogs become champions.`,
     lesson: 'Learn defensive strategies when your hand is weak or opponent is close to winning.'
   },
   18: {
-    title: 'Solo Practice',
-    emoji: '🤖',
+    title: 'End Game',
+    emoji: '⏰',
     chapter: 'Mastery',
-    intro: `Theory becomes instinct through practice. Now you'll face a computer opponent with no hints—just your skills against the algorithm.
+    intro: `The final cards are dealt. The stock is running low. These are the moments that separate good players from great ones.
 
-Don't worry about winning every hand. Focus on making good decisions. Review why you won or lost. This is where book knowledge transforms into table wisdom.`,
-    lesson: 'Apply everything you\'ve learned against an AI opponent—no hints, pure skill.'
+End game decisions are different. Should you knock now or risk one more draw? What if the stock runs out? How do you play when you're close to winning—or close to losing?
+
+These scenarios teach you to think like a closer.`,
+    lesson: 'Master critical late-game decisions when every move counts.'
   },
   19: {
-    title: 'Challenge Mode',
-    emoji: '🎯',
+    title: 'Quick Fire Quiz',
+    emoji: '⚡',
     chapter: 'Mastery',
-    intro: `Ready to test your mettle? Challenge Mode throws difficult scenarios at you—hands where the "right" play isn't obvious.
+    intro: `Time to test everything you've learned! Rapid-fire questions will probe every corner of your Gin Rummy knowledge.
 
-These puzzles are extracted from real games, moments where masters made brilliant moves. Study them. Solve them. Think like a champion.`,
-    lesson: 'Solve difficult hand puzzles that test advanced decision-making.'
+Card values, meld rules, scoring, strategy—nothing is off limits. This is your final exam before graduation.
+
+Don't overthink. Trust your instincts. You've trained for this.`,
+    lesson: 'Prove your mastery with rapid-fire questions covering all concepts.'
   },
   20: {
     title: 'Graduation',
