@@ -391,34 +391,170 @@ export class Level13 extends Level {
 
 export class Level14 extends Level {
   constructor() {
-    super({ number: 14, title: 'Triangle Theory', subtitle: 'Flexible combinations', instructions: 'Identify cards that could form multiple melds', passingScore: 4 });
-    this.currentQ = 0; this.correct = 0;
+    super({
+      number: 14,
+      title: 'Triangle Theory',
+      subtitle: 'Flexible combinations',
+      instructions: 'Find the "triangle" card that could complete multiple melds',
+      passingScore: 3,
+      starThresholds: { threeStarMax: 0, twoStarMax: 1 }
+    });
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
   }
-  init(g) { this.showQuestion(g); }
-  showQuestion(g) {
-    g.innerHTML = `
-      <div class="selection-count">${this.currentQ + 1}/4</div>
-      <p style="color: var(--text-muted); font-size: 13px; text-align: center; margin: 16px 0;">
-        A "triangle" is a card that could complete EITHER a set OR a run. Find it!
+
+  init(gameArea) {
+    // Each scenario shows cards where ONE card is a "triangle" - can complete both a set AND a run
+    this.scenarios = [
+      {
+        hand: [
+          createCard('hearts', '7'),   // TRIANGLE: could complete 7s set OR 6-7-8 hearts run
+          createCard('spades', '7'),   // Part of potential set
+          createCard('hearts', '6'),   // Part of potential run
+          createCard('hearts', '8'),   // Part of potential run
+          createCard('diamonds', 'K')  // Unrelated
+        ],
+        triangleId: '7-hearts',
+        explanation: 'The 7♥ is the triangle! It could complete a set (7♥ 7♠ + one more 7) OR a run (6♥ 7♥ 8♥).'
+      },
+      {
+        hand: [
+          createCard('clubs', '9'),    // TRIANGLE: could complete 9s set OR 8-9-10 clubs run
+          createCard('hearts', '9'),   // Part of potential set
+          createCard('clubs', '8'),    // Part of potential run
+          createCard('clubs', '10'),   // Part of potential run
+          createCard('spades', '2')    // Unrelated
+        ],
+        triangleId: '9-clubs',
+        explanation: 'The 9♣ is the triangle! It could join the 9♥ for a set, OR complete 8♣ 9♣ 10♣ run.'
+      },
+      {
+        hand: [
+          createCard('diamonds', 'Q'), // TRIANGLE: could complete Qs set OR J-Q-K diamonds run
+          createCard('clubs', 'Q'),    // Part of potential set
+          createCard('diamonds', 'J'), // Part of potential run
+          createCard('diamonds', 'K'), // Part of potential run
+          createCard('hearts', '4')    // Unrelated
+        ],
+        triangleId: 'Q-diamonds',
+        explanation: 'The Q♦ is the triangle! It works for a Queens set OR the J♦ Q♦ K♦ run.'
+      },
+      {
+        hand: [
+          createCard('spades', '5'),   // TRIANGLE: could complete 5s set OR 4-5-6 spades run
+          createCard('diamonds', '5'), // Part of potential set
+          createCard('hearts', '5'),   // Part of potential set (already 3!)
+          createCard('spades', '4'),   // Part of potential run
+          createCard('spades', '6')    // Part of potential run
+        ],
+        triangleId: '5-spades',
+        explanation: 'The 5♠ is the triangle! It could be the 4th five in the set OR complete 4♠ 5♠ 6♠.'
+      }
+    ];
+    this.showScenario(gameArea);
+  }
+
+  showScenario(gameArea) {
+    gameArea.innerHTML = '';
+    const scenario = this.scenarios[this.currentScenario];
+
+    // Progress
+    const progress = document.createElement('div');
+    progress.className = 'selection-count';
+    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    gameArea.appendChild(progress);
+
+    // Explanation
+    const intro = document.createElement('div');
+    intro.style.cssText = 'background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin: 12px 0; text-align: center;';
+    intro.innerHTML = `
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 4px;">
+        A <span style="color: var(--success); font-weight: 600;">triangle</span> card can complete EITHER a set OR a run.
       </p>
-      <div style="text-align: center; margin: 20px 0;">
-        <p>Example: If you have 7♥ 7♠ and also 6♥ 8♥</p>
-        <p style="color: var(--success);">The 7♥ is a triangle - it works for both!</p>
-      </div>
-      <button class="btn btn-primary" onclick="this.closest('.level-game-area').querySelector('#next-q').click()">Got it!</button>
-      <button id="next-q" style="display:none;" onclick=""></button>
+      <p style="color: var(--text-muted); font-size: 12px;">Tap the triangle card below:</p>
     `;
-    g.querySelector('#next-q').addEventListener('click', () => {
-      this.currentQ++;
-      this.correct++;
-      if (this.currentQ >= 4) {
-        this.score = 4; this.complete(true);
-      } else {
-        this.showQuestion(g);
+    gameArea.appendChild(intro);
+
+    // Cards
+    const cardsContainer = document.createElement('div');
+    cardsContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 20px 0;';
+
+    scenario.hand.forEach(card => {
+      const el = renderCard(card, { draggable: false });
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => this.handleSelection(card.id, scenario, gameArea));
+      cardsContainer.appendChild(el);
+    });
+    gameArea.appendChild(cardsContainer);
+
+    // Result area
+    const resultArea = document.createElement('div');
+    resultArea.id = 'result-area';
+    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    gameArea.appendChild(resultArea);
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+  }
+
+  handleSelection(cardId, scenario, gameArea) {
+    const isCorrect = cardId === scenario.triangleId;
+    const resultArea = document.getElementById('result-area');
+
+    // Disable further clicks
+    gameArea.querySelectorAll('.card').forEach(el => {
+      el.style.pointerEvents = 'none';
+      if (el.dataset.cardId === scenario.triangleId) {
+        el.classList.add('correct');
+      } else if (el.dataset.cardId === cardId && !isCorrect) {
+        el.classList.add('incorrect');
       }
     });
+
+    if (isCorrect) {
+      this.correctCount++;
+      resultArea.innerHTML = `
+        <div style="color: var(--success); font-weight: 600; margin-bottom: 8px;">Correct!</div>
+        <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
+      `;
+    } else {
+      resultArea.innerHTML = `
+        <div style="color: var(--error); font-weight: 600; margin-bottom: 8px;">Not quite</div>
+        <div style="color: var(--text-light); font-size: 13px;">${scenario.explanation}</div>
+      `;
+    }
+
+    this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
+
+    // Add next button
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.marginTop = '12px';
+
+      if (this.currentScenario < this.scenarios.length - 1) {
+        nextBtn.textContent = 'Next';
+        nextBtn.addEventListener('click', () => {
+          this.currentScenario++;
+          this.showScenario(gameArea);
+        });
+      } else {
+        nextBtn.textContent = 'Complete';
+        nextBtn.addEventListener('click', () => {
+          this.score = this.correctCount;
+          this.complete(this.correctCount >= this.passingScore);
+        });
+      }
+      resultArea.appendChild(nextBtn);
+    }, 300);
   }
-  reset() { this.currentQ = 0; this.correct = 0; super.reset(); }
+
+  reset() {
+    this.scenarios = [];
+    this.currentScenario = 0;
+    this.correctCount = 0;
+    super.reset();
+  }
 }
 
 export class Level15 extends Level {
