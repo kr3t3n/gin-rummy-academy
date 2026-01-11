@@ -70,24 +70,50 @@ export class Level10 extends Level {
     gameArea.innerHTML = '';
     const hand = this.hands[this.currentHand];
 
-    // Progress
+    // Top bar with progress and action button
+    const topBar = document.createElement('div');
+    topBar.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      background: var(--bg-dark);
+      padding: 8px 0;
+      z-index: 10;
+    `;
+
+    // Progress on left
     const progress = document.createElement('div');
     progress.className = 'selection-count';
-    progress.textContent = `Gin Hand ${this.currentHand + 1}/${this.totalHands}`;
-    gameArea.appendChild(progress);
+    progress.textContent = `Hand ${this.currentHand + 1}/${this.totalHands}`;
+    topBar.appendChild(progress);
 
-    // Explanation of Gin
+    // Check button on right with icon
+    const checkBtn = document.createElement('button');
+    checkBtn.id = 'check-gin-btn';
+    checkBtn.className = 'btn btn-primary';
+    checkBtn.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px 16px;';
+    checkBtn.innerHTML = '✓ Check';
+    checkBtn.addEventListener('click', () => this.checkGin(hand));
+    topBar.appendChild(checkBtn);
+
+    gameArea.appendChild(topBar);
+
+    // Explanation of Gin (more compact)
     const explanation = document.createElement('div');
     explanation.style.cssText = `
       background: linear-gradient(135deg, rgba(0, 210, 106, 0.1), rgba(233, 69, 96, 0.1));
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 16px;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
       text-align: center;
+      font-size: 12px;
     `;
     explanation.innerHTML = `
-      <div style="font-weight: 600; color: var(--success); margin-bottom: 4px;">Going Gin = 25 Bonus Points!</div>
-      <div style="font-size: 12px; color: var(--text-muted);">All 10 cards in melds, zero deadwood</div>
+      <span style="color: var(--success); font-weight: 600;">Gin = 25 pts!</span>
+      <span style="color: var(--text-muted);"> All 10 cards in melds</span>
     `;
     gameArea.appendChild(explanation);
 
@@ -131,18 +157,10 @@ export class Level10 extends Level {
     }
     gameArea.appendChild(meldsContainer);
 
-    // Check button
-    const checkBtn = document.createElement('button');
-    checkBtn.className = 'btn btn-primary';
-    checkBtn.textContent = 'Check for Gin';
-    checkBtn.style.marginTop = '16px';
-    checkBtn.addEventListener('click', () => this.checkGin(hand));
-    gameArea.appendChild(checkBtn);
-
-    // Result area
+    // Result area (below melds)
     const resultArea = document.createElement('div');
     resultArea.id = 'result-area';
-    resultArea.style.cssText = 'margin-top: 16px; text-align: center;';
+    resultArea.style.cssText = 'margin-top: 12px; text-align: center;';
     gameArea.appendChild(resultArea);
 
     this.updateProgress(`${this.ginCount}/${this.totalHands} Gin hands`);
@@ -163,6 +181,7 @@ export class Level10 extends Level {
     `;
 
     const label = document.createElement('span');
+    label.className = 'meld-label';
     label.style.cssText = 'color: var(--text-muted); font-size: 12px;';
     label.textContent = `Meld ${num}`;
     zone.appendChild(label);
@@ -181,8 +200,8 @@ export class Level10 extends Level {
 
     zone.addEventListener('carddrop', (e) => {
       const { element } = e.detail;
-      // Remove label if present
-      const lbl = zone.querySelector('span');
+      // Remove label if present (use specific class to avoid removing card elements)
+      const lbl = zone.querySelector('.meld-label');
       if (lbl) lbl.remove();
       zone.appendChild(element);
       zone.classList.remove('drag-over');
@@ -247,37 +266,32 @@ export class Level10 extends Level {
       // GIN!
       this.ginCount++;
       resultArea.innerHTML = `
-        <div style="font-size: 28px; margin-bottom: 8px;">🎉</div>
-        <div style="color: var(--success); font-weight: 600; font-size: 20px;">GIN!</div>
-        <div style="color: var(--text-muted); font-size: 13px;">
-          Zero deadwood = 25 bonus points. Opponent cannot lay off!
-        </div>
+        <div style="font-size: 24px; margin-bottom: 4px;">🎉</div>
+        <div style="color: var(--success); font-weight: 600; font-size: 18px;">GIN!</div>
+        <div style="color: var(--text-muted); font-size: 12px;">+25 bonus points</div>
       `;
 
       this.updateProgress(`${this.ginCount}/${this.totalHands} Gin hands`);
 
-      // Next button
-      setTimeout(() => {
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn btn-primary';
-        nextBtn.style.marginTop = '16px';
-
+      // Replace check button with next button in top bar
+      const checkBtn = document.getElementById('check-gin-btn');
+      if (checkBtn) {
         if (this.currentHand < this.totalHands - 1) {
-          nextBtn.textContent = 'Next Hand';
-          nextBtn.addEventListener('click', () => {
+          checkBtn.innerHTML = '→ Next';
+          checkBtn.style.background = 'var(--success)';
+          checkBtn.onclick = () => {
             this.currentHand++;
             this.showHand(this.gameAreaEl);
-          });
+          };
         } else {
-          nextBtn.textContent = 'Complete Level';
-          nextBtn.addEventListener('click', () => {
+          checkBtn.innerHTML = '✓ Done';
+          checkBtn.style.background = 'var(--success)';
+          checkBtn.onclick = () => {
             this.score = this.ginCount;
             this.complete(this.ginCount >= this.passingScore);
-          });
+          };
         }
-
-        resultArea.appendChild(nextBtn);
-      }, 500);
+      }
     }
   }
 
