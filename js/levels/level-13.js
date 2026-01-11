@@ -34,13 +34,18 @@ export class Level13 extends Level {
     gameArea.innerHTML = '';
     const s = this.scenarios[this.currentScenario];
 
-    // Top bar with Check button
-    const topBar = this.createTopBar({
-      progress: `${this.currentScenario + 1}/4`,
+    // Check button in header (top-right)
+    this.createHeaderButton({
       buttonText: 'Check ✓',
       onButtonClick: () => this.checkAnswer(s)
     });
-    gameArea.appendChild(topBar);
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `${this.currentScenario + 1}/4`;
+    progressCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(progressCount);
 
     const card = document.createElement('div');
     card.style.cssText = 'background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin: 16px 0;';
@@ -101,11 +106,11 @@ export class Level13 extends Level {
 
     input.disabled = true;
 
-    // Update top bar button
+    // Update header button
     if (this.currentScenario < 3) {
-      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+      this.updateHeaderButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
     } else {
-      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 4); });
+      this.updateHeaderButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 4); });
     }
   }
 

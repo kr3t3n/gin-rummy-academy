@@ -155,13 +155,18 @@ export class Level03 extends Level {
     // Generate groups
     this.groups = generateGroups();
 
-    // Top bar with progress and Check button
-    const topBar = this.createTopBar({
-      progress: `0 selected`,
+    // Check button in header (top-right)
+    this.createHeaderButton({
       buttonText: 'Check ✓',
       onButtonClick: () => this.checkAnswers()
     });
-    gameArea.appendChild(topBar);
+
+    // Selection counter in game area
+    const selectionCount = document.createElement('div');
+    selectionCount.className = 'selection-count top-bar-progress';
+    selectionCount.textContent = '0 selected';
+    selectionCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(selectionCount);
 
     // Hint about Ace
     const hint = document.createElement('p');

@@ -70,13 +70,18 @@ export class Level10 extends Level {
     gameArea.innerHTML = '';
     const hand = this.hands[this.currentHand];
 
-    // Top bar with progress and Check button (using helper)
-    const topBar = this.createTopBar({
-      progress: `Hand ${this.currentHand + 1}/${this.totalHands}`,
+    // Check button in header (top-right)
+    this.createHeaderButton({
       buttonText: 'Check ✓',
       onButtonClick: () => this.checkGin(hand)
     });
-    gameArea.appendChild(topBar);
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `Hand ${this.currentHand + 1}/${this.totalHands}`;
+    progressCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(progressCount);
 
     // Explanation of Gin (more compact)
     const explanation = document.createElement('div');
@@ -250,14 +255,14 @@ export class Level10 extends Level {
 
       this.updateProgress(`${this.ginCount}/${this.totalHands} Gin hands`);
 
-      // Update top bar button to Next or Finish
+      // Update header button to Next or Finish
       if (this.currentHand < this.totalHands - 1) {
-        this.updateTopBarButton('Next →', () => {
+        this.updateHeaderButton('Next →', () => {
           this.currentHand++;
           this.showHand(this.gameAreaEl);
         });
       } else {
-        this.updateTopBarButton('Finish', () => {
+        this.updateHeaderButton('Finish', () => {
           this.score = this.ginCount;
           this.complete(this.ginCount >= this.passingScore);
         });

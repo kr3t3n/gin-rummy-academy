@@ -35,15 +35,19 @@ export class Level12 extends Level {
     gameArea.innerHTML = '';
     const s = this.scenarios[this.currentScenario];
 
-    // Top bar
-    const topBar = this.createTopBar({
-      progress: `${this.currentScenario + 1}/5`,
+    // Button in header (top-right, initially faded)
+    const headerBtn = this.createHeaderButton({
       buttonText: 'Choose ↓',
       onButtonClick: () => {}
     });
-    const btn = topBar.querySelector('.top-bar-btn');
-    if (btn) btn.style.opacity = '0.3';
-    gameArea.appendChild(topBar);
+    if (headerBtn) headerBtn.style.opacity = '0.3';
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `${this.currentScenario + 1}/5`;
+    progressCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(progressCount);
 
     const card = document.createElement('div');
     card.style.cssText = 'background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; text-align: center; margin: 16px 0;';
@@ -90,11 +94,11 @@ export class Level12 extends Level {
 
     this.gameAreaEl.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
 
-    // Update top bar button
+    // Update header button
     if (this.currentScenario < 4) {
-      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+      this.updateHeaderButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
     } else {
-      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 5); });
+      this.updateHeaderButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 5); });
     }
   }
 

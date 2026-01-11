@@ -69,13 +69,18 @@ export class Level11 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    // Top bar with progress and Check button
-    const topBar = this.createTopBar({
-      progress: `${this.currentScenario + 1}/3`,
+    // Check button in header (top-right)
+    this.createHeaderButton({
       buttonText: 'Check ✓',
       onButtonClick: () => this.checkAnswer(scenario)
     });
-    gameArea.appendChild(topBar);
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `${this.currentScenario + 1}/3`;
+    progressCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(progressCount);
 
     // Explain Gin blocks layoffs
     const note = document.createElement('p');
@@ -150,11 +155,11 @@ export class Level11 extends Level {
       resultArea.innerHTML = `<div style="color: var(--error);">Not quite. The valid layoffs are highlighted in green.</div>`;
     }
 
-    // Update top bar button
+    // Update header button
     if (this.currentScenario < 2) {
-      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+      this.updateHeaderButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
     } else {
-      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 3); });
+      this.updateHeaderButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 3); });
     }
   }
 

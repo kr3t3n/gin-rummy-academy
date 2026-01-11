@@ -105,13 +105,18 @@ export class Level05 extends Level {
     const hand = this.hands[this.currentHandIndex];
     const correctAnswer = calculateDeadwood(hand.deadwood);
 
-    // Top bar with progress and Check button
-    const topBar = this.createTopBar({
-      progress: `Hand ${this.currentHandIndex + 1}/${this.totalHands}`,
+    // Check button in header (top-right)
+    this.createHeaderButton({
       buttonText: 'Check ✓',
       onButtonClick: () => this.checkAnswer(correctAnswer)
     });
-    gameArea.appendChild(topBar);
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `Hand ${this.currentHandIndex + 1}/${this.totalHands}`;
+    progressCount.style.cssText = 'margin-bottom: 8px;';
+    gameArea.appendChild(progressCount);
 
     // Difficulty badge below progress
     const diffBadge = document.createElement('span');
@@ -298,14 +303,14 @@ export class Level05 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.totalHands} correct`);
 
-    // Update top bar button to Next or See Results
+    // Update header button to Next or See Results
     if (this.currentHandIndex < this.totalHands - 1) {
-      this.updateTopBarButton('Next →', () => {
+      this.updateHeaderButton('Next →', () => {
         this.currentHandIndex++;
         this.showHand(this.gameAreaEl);
       });
     } else {
-      this.updateTopBarButton('Finish', () => {
+      this.updateHeaderButton('Finish', () => {
         this.score = this.correctCount;
         this.complete(this.correctCount >= this.passingScore);
       });

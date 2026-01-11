@@ -76,15 +76,19 @@ export class Level14 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    // Top bar
-    const topBar = this.createTopBar({
-      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+    // Button in header (top-right, initially faded)
+    const headerBtn = this.createHeaderButton({
       buttonText: 'Pick ↓',
       onButtonClick: () => {}
     });
-    const btn = topBar.querySelector('.top-bar-btn');
-    if (btn) btn.style.opacity = '0.3';
-    gameArea.appendChild(topBar);
+    if (headerBtn) headerBtn.style.opacity = '0.3';
+
+    // Progress counter in game area
+    const progressCount = document.createElement('div');
+    progressCount.className = 'selection-count top-bar-progress';
+    progressCount.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
+    progressCount.style.cssText = 'margin-bottom: 12px;';
+    gameArea.appendChild(progressCount);
 
     // Explanation
     const intro = document.createElement('div');
@@ -147,14 +151,14 @@ export class Level14 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    // Update top bar button
+    // Update header button
     if (this.currentScenario < this.scenarios.length - 1) {
-      this.updateTopBarButton('Next →', () => {
+      this.updateHeaderButton('Next →', () => {
         this.currentScenario++;
         this.showScenario(gameArea);
       });
     } else {
-      this.updateTopBarButton('Finish', () => {
+      this.updateHeaderButton('Finish', () => {
         this.score = this.correctCount;
         this.complete(this.correctCount >= this.passingScore);
       });
