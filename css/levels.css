@@ -238,26 +238,26 @@
 
 .bucket-cards {
   position: relative;
+  width: 100%;
+  height: calc(var(--card-width) * 1.4);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-height: calc(var(--card-width) * 1.4);
+  justify-content: center;
 }
 
-/* Cascade cards with overlap - only show top corner */
+/* Cascade cards with absolute positioning */
 .bucket-cards .card {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.bucket-cards .card:not(:first-child) {
-  margin-top: calc(var(--card-width) * -1.1);
-}
-
-/* Make sure last card is fully visible on hover */
-.bucket-cards .card:last-child {
-  z-index: 1;
-}
+/* Stack cards with increasing top offset - show ~20% of each card underneath */
+.bucket-cards .card:nth-child(1) { top: 0; z-index: 1; }
+.bucket-cards .card:nth-child(2) { top: calc(var(--card-width) * 0.28); z-index: 2; }
+.bucket-cards .card:nth-child(3) { top: calc(var(--card-width) * 0.56); z-index: 3; }
+.bucket-cards .card:nth-child(4) { top: calc(var(--card-width) * 0.84); z-index: 4; }
+.bucket-cards .card:nth-child(5) { top: calc(var(--card-width) * 1.12); z-index: 5; }
+.bucket-cards .card:nth-child(n+6) { top: calc(var(--card-width) * 1.4); z-index: 6; }
 
 /* Card group for levels 2 and 3 */
 .card-groups {
