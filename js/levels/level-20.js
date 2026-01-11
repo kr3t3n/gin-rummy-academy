@@ -30,7 +30,7 @@ export class Level20 extends Level {
           </p>
         </div>
         <p style="color: var(--accent); font-size: 14px; margin-bottom: 20px;">
-          Now go play with Adelina! 🎴
+          Now go challenge a friend! 🎴
         </p>
         <button class="btn btn-success" id="graduate-btn">Graduate!</button>
       </div>
