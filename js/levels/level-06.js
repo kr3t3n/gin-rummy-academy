@@ -68,14 +68,15 @@ function generateScenarios() {
       id: 5,
       hand: [
         createCard(suits[0], '5'), createCard(suits[0], '6'),  // Potential run
-        createCard(suits[1], '5'), createCard(suits[2], '5'),  // Potential set
+        createCard(suits[1], '5'),  // Pair of 5s - need one more for set
         createCard(suits[3], 'J'), createCard(suits[1], 'Q'),
         createCard(suits[2], '9'), createCard(suits[3], '8'),
-        createCard(suits[0], '2'), createCard(suits[1], 'A')
+        createCard(suits[0], '2'), createCard(suits[1], 'A'),
+        createCard(suits[2], 'K')
       ],
-      discardTop: createCard(suits[3], '5'),  // 4th 5 - completes set!
+      discardTop: createCard(suits[2], '5'),  // 3rd 5 - completes set!
       correctChoice: 'discard',
-      explanation: 'Take it! The 5 completes a set with your other three 5s. Always take cards that complete melds.'
+      explanation: 'Take it! The 5 completes a set with your pair of 5s. Always take cards that complete melds.'
     }
   ];
 }
