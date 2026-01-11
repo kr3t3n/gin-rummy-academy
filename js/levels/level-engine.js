@@ -48,6 +48,7 @@ export class Level {
           </svg>
         </button>
         <span class="level-number">Level ${this.number}</span>
+        <div class="header-actions"></div>
       </div>
       <h2 class="level-title">${this.title}</h2>
       <p class="level-subtitle">${this.subtitle}</p>
@@ -179,6 +180,41 @@ export class Level {
     const progressEl = this.gameAreaEl?.querySelector('.top-bar-progress');
     if (progressEl) {
       progressEl.textContent = text;
+    }
+  }
+
+  /**
+   * Creates a button in the header (top-right corner)
+   * @param {Object} config - Configuration
+   * @param {string} config.buttonText - Button text
+   * @param {Function} config.onButtonClick - Button click handler
+   * @returns {HTMLElement} The button element
+   */
+  createHeaderButton({ buttonText, onButtonClick }) {
+    const container = this.headerEl?.querySelector('.header-actions');
+    if (!container) return null;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary header-action-btn';
+    btn.innerHTML = buttonText;
+    btn.addEventListener('click', onButtonClick);
+    container.appendChild(btn);
+
+    return btn;
+  }
+
+  /**
+   * Updates the header button text and handler
+   * @param {string} text - New button text
+   * @param {Function} onClick - New click handler
+   */
+  updateHeaderButton(text, onClick) {
+    const btn = this.headerEl?.querySelector('.header-action-btn');
+    if (btn) {
+      btn.innerHTML = text;
+      const newBtn = btn.cloneNode(true);
+      newBtn.addEventListener('click', onClick);
+      btn.parentNode.replaceChild(newBtn, btn);
     }
   }
 
