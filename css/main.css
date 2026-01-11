@@ -139,6 +139,11 @@ body::before {
   color: var(--text-bright);
 }
 
+/* Hide header during level play for mobile optimization */
+body.level-active .app-header {
+  display: none;
+}
+
 /* Main game container */
 #game-container {
   flex: 1;

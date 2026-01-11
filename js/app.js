@@ -302,6 +302,7 @@ Are you ready?`
  * Shows the welcome/intro screen
  */
 function showWelcome() {
+  document.body.classList.remove('level-active');
   container.innerHTML = '';
 
   const welcome = document.createElement('div');
@@ -395,6 +396,7 @@ function showIntroStory(pageIndex) {
  * Shows the adventure map (level select)
  */
 function showAdventureMap() {
+  document.body.classList.remove('level-active');
   container.innerHTML = '';
 
   const map = document.createElement('div');
@@ -552,6 +554,7 @@ function showLevelIntro(levelNum) {
  * Starts a specific level
  */
 function startLevel(levelNum) {
+  document.body.classList.add('level-active');
   const LevelClass = LEVELS[levelNum];
 
   if (!LevelClass) {
