@@ -192,6 +192,26 @@ body.level-active .app-header {
   padding: var(--space-sm) 0;
 }
 
+.level-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.header-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.header-action-btn {
+  padding: 6px 14px !important;
+  min-height: 36px !important;
+  font-size: clamp(12px, 3vw, 14px) !important;
+}
+
 .level-number {
   font-family: var(--font-body);
   font-size: clamp(11px, 2.5vw, 13px);
