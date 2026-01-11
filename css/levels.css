@@ -237,11 +237,26 @@
 }
 
 .bucket-cards {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   flex: 1;
+  min-height: calc(var(--card-width) * 1.4);
+}
+
+/* Cascade cards with overlap - only show top corner */
+.bucket-cards .card {
+  position: relative;
+}
+
+.bucket-cards .card:not(:first-child) {
+  margin-top: calc(var(--card-width) * -1.1);
+}
+
+/* Make sure last card is fully visible on hover */
+.bucket-cards .card:last-child {
+  z-index: 1;
 }
 
 /* Card group for levels 2 and 3 */
