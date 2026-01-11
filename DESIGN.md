@@ -193,7 +193,7 @@ A progressive tutorial game that teaches Gin Rummy through interactive challenge
 
 #### Level 20: Ready to Play!
 **Concept:** Graduation
-**Content:** Summary of all concepts, link to play vs Adelina
+**Content:** Summary of all concepts, encourage real play
 **Unlocks:** Two-player mode
 
 ---
