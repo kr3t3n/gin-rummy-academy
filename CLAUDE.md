@@ -61,14 +61,16 @@ class LevelXX extends Level {
 - `calculateDeadwood(cards)` - Sums unmelded card values
 
 ### App Metadata (`app.js`)
-Level intros and metadata stored in `LEVEL_DATA` object:
+Level intros and metadata stored in `LEVEL_INFO` object:
 ```javascript
-LEVEL_DATA[14] = {
-  title: 'Triangle Theory',
-  emoji: '🔺',
-  chapter: 'Advanced Tactics',
-  intro: `...`,
-  lesson: '...'
+const LEVEL_INFO = {
+  14: {
+    title: 'Triangle Theory',
+    emoji: '🔺',
+    chapter: 'Advanced Tactics',
+    intro: `...`,
+    lesson: '...'
+  }
 }
 ```
 
@@ -91,19 +93,10 @@ const lbl = zone.querySelector('.meld-label');
 ```
 
 ### Placeholder/Stub Levels
-**Problem**: Some levels in `level-11-20.js` are stubs that just show tips.
-**Solution**: Implement proper interactive scenarios following the pattern of working levels.
+**Problem**: Previously some levels were stubs that just showed tips.
+**Solution**: All 20 levels are now fully implemented with interactive scenarios.
 
-Stub pattern to replace:
-```javascript
-// BAD - stub that just shows tips
-init(gameArea) {
-  this.showTip(gameArea, 0);
-}
-showTip(gameArea, index) {
-  // Just shows text and "Got it!" button
-}
-```
+Note: All levels have been split into individual files (level-11.js through level-20.js).
 
 ### Card Generation
 **Problem**: Hands that are impossible to complete (e.g., Gin hands that can't actually form Gin).
@@ -205,7 +198,7 @@ Commits follow pattern:
 ```
 Fix Level X: brief description of what was fixed
 Add Level X: new level implementation
-Update metadata: changes to app.js LEVEL_DATA
+Update metadata: changes to app.js LEVEL_INFO
 Split levels: reorganize into individual files
 ```
 
