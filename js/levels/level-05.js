@@ -105,13 +105,15 @@ export class Level05 extends Level {
     const hand = this.hands[this.currentHandIndex];
     const correctAnswer = calculateDeadwood(hand.deadwood);
 
-    // Progress indicator
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `Hand ${this.currentHandIndex + 1}/${this.totalHands}`;
-    gameArea.appendChild(progress);
+    // Top bar with progress and Check button
+    const topBar = this.createTopBar({
+      progress: `Hand ${this.currentHandIndex + 1}/${this.totalHands}`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkAnswer(correctAnswer)
+    });
+    gameArea.appendChild(topBar);
 
-    // Difficulty badge
+    // Difficulty badge below progress
     const diffBadge = document.createElement('span');
     diffBadge.style.cssText = `
       display: inline-block;
@@ -119,13 +121,13 @@ export class Level05 extends Level {
       border-radius: 4px;
       font-size: 11px;
       text-transform: uppercase;
-      margin-left: 8px;
+      margin-bottom: 8px;
       background: ${hand.difficulty === 'easy' ? 'var(--success)' :
                     hand.difficulty === 'medium' ? '#f0ad4e' : 'var(--accent)'};
       color: white;
     `;
     diffBadge.textContent = hand.difficulty;
-    progress.appendChild(diffBadge);
+    gameArea.appendChild(diffBadge);
 
     // Melds section
     const meldsSection = document.createElement('div');
@@ -212,7 +214,7 @@ export class Level05 extends Level {
     deadwoodSection.appendChild(deadwoodCards);
     gameArea.appendChild(deadwoodSection);
 
-    // Input section
+    // Input section (without submit button - using top bar)
     const inputSection = document.createElement('div');
     inputSection.className = 'deadwood-input-container';
     inputSection.style.marginTop = '20px';
@@ -230,12 +232,7 @@ export class Level05 extends Level {
     input.placeholder = '?';
     input.autocomplete = 'off';
 
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn btn-primary';
-    submitBtn.textContent = 'Check';
-    submitBtn.addEventListener('click', () => this.checkAnswer(correctAnswer));
-
-    // Also submit on Enter
+    // Submit on Enter
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         this.checkAnswer(correctAnswer);
@@ -244,7 +241,6 @@ export class Level05 extends Level {
 
     inputSection.appendChild(label);
     inputSection.appendChild(input);
-    inputSection.appendChild(submitBtn);
     gameArea.appendChild(inputSection);
 
     // Breakdown area (shown after answer)
@@ -302,24 +298,18 @@ export class Level05 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.totalHands} correct`);
 
-    // Next hand button
-    setTimeout(() => {
-      if (this.currentHandIndex < this.totalHands - 1) {
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn btn-primary';
-        nextBtn.textContent = 'Next Hand';
-        nextBtn.style.marginTop = '12px';
-        nextBtn.addEventListener('click', () => {
-          this.currentHandIndex++;
-          this.showHand(this.gameAreaEl);
-        });
-        breakdown.appendChild(nextBtn);
-      } else {
-        // All hands done
+    // Update top bar button to Next or See Results
+    if (this.currentHandIndex < this.totalHands - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentHandIndex++;
+        this.showHand(this.gameAreaEl);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
         this.score = this.correctCount;
         this.complete(this.correctCount >= this.passingScore);
-      }
-    }, 500);
+      });
+    }
   }
 
   reset() {

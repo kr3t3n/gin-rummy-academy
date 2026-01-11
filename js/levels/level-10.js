@@ -70,35 +70,12 @@ export class Level10 extends Level {
     gameArea.innerHTML = '';
     const hand = this.hands[this.currentHand];
 
-    // Top bar with progress and action button
-    const topBar = document.createElement('div');
-    topBar.style.cssText = `
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      position: sticky;
-      top: 0;
-      background: var(--bg-dark);
-      padding: 8px 0;
-      z-index: 10;
-    `;
-
-    // Progress on left
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `Hand ${this.currentHand + 1}/${this.totalHands}`;
-    topBar.appendChild(progress);
-
-    // Check button on right with icon
-    const checkBtn = document.createElement('button');
-    checkBtn.id = 'check-gin-btn';
-    checkBtn.className = 'btn btn-primary';
-    checkBtn.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px 16px;';
-    checkBtn.innerHTML = '✓ Check';
-    checkBtn.addEventListener('click', () => this.checkGin(hand));
-    topBar.appendChild(checkBtn);
-
+    // Top bar with progress and Check button (using helper)
+    const topBar = this.createTopBar({
+      progress: `Hand ${this.currentHand + 1}/${this.totalHands}`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkGin(hand)
+    });
     gameArea.appendChild(topBar);
 
     // Explanation of Gin (more compact)
@@ -273,24 +250,17 @@ export class Level10 extends Level {
 
       this.updateProgress(`${this.ginCount}/${this.totalHands} Gin hands`);
 
-      // Replace check button with next button in top bar
-      const checkBtn = document.getElementById('check-gin-btn');
-      if (checkBtn) {
-        if (this.currentHand < this.totalHands - 1) {
-          checkBtn.innerHTML = '→ Next';
-          checkBtn.style.background = 'var(--success)';
-          checkBtn.onclick = () => {
-            this.currentHand++;
-            this.showHand(this.gameAreaEl);
-          };
-        } else {
-          checkBtn.innerHTML = '✓ Done';
-          checkBtn.style.background = 'var(--success)';
-          checkBtn.onclick = () => {
-            this.score = this.ginCount;
-            this.complete(this.ginCount >= this.passingScore);
-          };
-        }
+      // Update top bar button to Next or Finish
+      if (this.currentHand < this.totalHands - 1) {
+        this.updateTopBarButton('Next →', () => {
+          this.currentHand++;
+          this.showHand(this.gameAreaEl);
+        });
+      } else {
+        this.updateTopBarButton('Finish', () => {
+          this.score = this.ginCount;
+          this.complete(this.ginCount >= this.passingScore);
+        });
       }
     }
   }

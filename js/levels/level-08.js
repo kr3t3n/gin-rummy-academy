@@ -128,11 +128,15 @@ export class Level08 extends Level {
     const hand = this.hands[this.currentHand];
     const { melds, deadwood } = findOptimalMelds(hand.hand);
 
-    // Progress
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `Hand ${this.currentHand + 1}/${this.totalHands}`;
-    gameArea.appendChild(progress);
+    // Top bar with progress (button hidden until choice made)
+    const topBar = this.createTopBar({
+      progress: `${this.currentHand + 1}/${this.totalHands}`,
+      buttonText: 'Choose ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Rule reminder
     const reminder = document.createElement('p');
@@ -242,28 +246,18 @@ export class Level08 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.totalHands} correct`);
 
-    // Next button
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '16px';
-
-      if (this.currentHand < this.totalHands - 1) {
-        nextBtn.textContent = 'Next Hand';
-        nextBtn.addEventListener('click', () => {
-          this.currentHand++;
-          this.showHand(this.gameAreaEl);
-        });
-      } else {
-        nextBtn.textContent = 'See Results';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button to Next or See Results
+    if (this.currentHand < this.totalHands - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentHand++;
+        this.showHand(this.gameAreaEl);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {

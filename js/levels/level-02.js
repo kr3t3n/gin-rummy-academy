@@ -142,12 +142,13 @@ export class Level02 extends Level {
     // Generate groups
     this.groups = generateGroups();
 
-    // Selection counter
-    const counter = document.createElement('div');
-    counter.className = 'selection-count';
-    counter.id = 'set-counter';
-    counter.textContent = `0/${this.totalSets} sets found`;
-    gameArea.appendChild(counter);
+    // Top bar with progress and Check button
+    const topBar = this.createTopBar({
+      progress: `0 selected`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkAnswers()
+    });
+    gameArea.appendChild(topBar);
 
     // Groups container
     const groupsContainer = document.createElement('div');
@@ -159,15 +160,6 @@ export class Level02 extends Level {
     }
 
     gameArea.appendChild(groupsContainer);
-
-    // Submit button (appears after some selections)
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn btn-primary';
-    submitBtn.id = 'submit-btn';
-    submitBtn.textContent = 'Check Answers';
-    submitBtn.style.display = 'none';
-    submitBtn.addEventListener('click', () => this.checkAnswers());
-    gameArea.appendChild(submitBtn);
 
     this.updateProgress(`Find all ${this.totalSets} sets`);
   }
@@ -199,16 +191,9 @@ export class Level02 extends Level {
       el.classList.add('selected');
     }
 
-    // Count selected
+    // Count selected and update top bar
     const selected = this.gameAreaEl.querySelectorAll('.card-group.selected').length;
-
-    // Update counter
-    const counter = document.getElementById('set-counter');
-    counter.textContent = `${selected} selected`;
-
-    // Show submit button when ready
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.style.display = selected > 0 ? 'block' : 'none';
+    this.updateTopBarProgress(`${selected} selected`);
   }
 
   checkAnswers() {
@@ -264,9 +249,6 @@ export class Level02 extends Level {
       this.score = this.totalSets;
       this.complete(true);
     }
-
-    // Hide submit button
-    document.getElementById('submit-btn').style.display = 'none';
   }
 
   reset() {

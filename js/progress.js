@@ -236,3 +236,27 @@ export function debugSetProgress(overrides) {
   saveProgress(progress);
   return progress;
 }
+
+/**
+ * Unlocks all levels (marks all as completed with 3 stars)
+ * @returns {Object} Updated progress
+ */
+export function unlockAllLevels(totalLevels = 20) {
+  const progress = loadProgress();
+
+  for (let i = 1; i <= totalLevels; i++) {
+    progress.levels[i] = {
+      completed: true,
+      stars: 3,
+      attempts: 1,
+      bestScore: 100,
+      completedAt: new Date().toISOString()
+    };
+  }
+
+  progress.currentLevel = totalLevels + 1;
+  progress.totalStars = totalLevels * 3;
+
+  saveProgress(progress);
+  return progress;
+}

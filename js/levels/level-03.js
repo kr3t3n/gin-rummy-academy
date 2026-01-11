@@ -155,12 +155,13 @@ export class Level03 extends Level {
     // Generate groups
     this.groups = generateGroups();
 
-    // Selection counter
-    const counter = document.createElement('div');
-    counter.className = 'selection-count';
-    counter.id = 'run-counter';
-    counter.textContent = `0/${this.totalRuns} runs found`;
-    gameArea.appendChild(counter);
+    // Top bar with progress and Check button
+    const topBar = this.createTopBar({
+      progress: `0 selected`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkAnswers()
+    });
+    gameArea.appendChild(topBar);
 
     // Hint about Ace
     const hint = document.createElement('p');
@@ -184,15 +185,6 @@ export class Level03 extends Level {
     }
 
     gameArea.appendChild(groupsContainer);
-
-    // Submit button
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn btn-primary';
-    submitBtn.id = 'submit-btn';
-    submitBtn.textContent = 'Check Answers';
-    submitBtn.style.display = 'none';
-    submitBtn.addEventListener('click', () => this.checkAnswers());
-    gameArea.appendChild(submitBtn);
 
     this.updateProgress(`Find all ${this.totalRuns} runs`);
   }
@@ -225,16 +217,9 @@ export class Level03 extends Level {
       el.classList.add('selected');
     }
 
-    // Count selected
+    // Count selected and update top bar
     const selected = this.gameAreaEl.querySelectorAll('.card-group.selected').length;
-
-    // Update counter
-    const counter = document.getElementById('run-counter');
-    counter.textContent = `${selected} selected`;
-
-    // Show submit button when ready
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.style.display = selected > 0 ? 'block' : 'none';
+    this.updateTopBarProgress(`${selected} selected`);
   }
 
   checkAnswers() {
@@ -290,9 +275,6 @@ export class Level03 extends Level {
       this.score = this.totalRuns;
       this.complete(true);
     }
-
-    // Hide submit button
-    document.getElementById('submit-btn').style.display = 'none';
   }
 
   reset() {

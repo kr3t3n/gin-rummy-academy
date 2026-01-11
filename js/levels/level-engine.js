@@ -119,6 +119,70 @@ export class Level {
   }
 
   /**
+   * Creates a sticky top bar with progress and action button
+   * @param {Object} config - Configuration
+   * @param {string} config.progress - Progress text (e.g., "1/5")
+   * @param {string} config.buttonText - Button text
+   * @param {Function} config.onButtonClick - Button click handler
+   * @returns {HTMLElement} The top bar element
+   */
+  createTopBar({ progress, buttonText, onButtonClick }) {
+    const topBar = document.createElement('div');
+    topBar.className = 'level-top-bar';
+    topBar.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      background: var(--bg-dark);
+      padding: 8px 0;
+      z-index: 10;
+    `;
+
+    const progressEl = document.createElement('div');
+    progressEl.className = 'selection-count top-bar-progress';
+    progressEl.textContent = progress;
+    topBar.appendChild(progressEl);
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary top-bar-btn';
+    btn.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 8px 16px;';
+    btn.innerHTML = buttonText;
+    btn.addEventListener('click', onButtonClick);
+    topBar.appendChild(btn);
+
+    return topBar;
+  }
+
+  /**
+   * Updates the top bar button text and handler
+   * @param {string} text - New button text
+   * @param {Function} onClick - New click handler
+   */
+  updateTopBarButton(text, onClick) {
+    const btn = this.gameAreaEl?.querySelector('.top-bar-btn');
+    if (btn) {
+      btn.innerHTML = text;
+      const newBtn = btn.cloneNode(true);
+      newBtn.addEventListener('click', onClick);
+      btn.parentNode.replaceChild(newBtn, btn);
+    }
+  }
+
+  /**
+   * Updates the top bar progress text
+   * @param {string} text - New progress text
+   */
+  updateTopBarProgress(text) {
+    const progressEl = this.gameAreaEl?.querySelector('.top-bar-progress');
+    if (progressEl) {
+      progressEl.textContent = text;
+    }
+  }
+
+  /**
    * Shows feedback for correct answer
    * @param {HTMLElement} element - Element to animate
    */

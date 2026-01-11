@@ -126,11 +126,15 @@ export class Level07 extends Level {
     // Find melds in hand for display
     const { melds, deadwood } = findOptimalMelds(scenario.hand.slice(0, -1)); // Exclude "drawn" card
 
-    // Progress
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `Scenario ${this.currentScenario + 1}/${this.totalScenarios}`;
-    gameArea.appendChild(progress);
+    // Top bar with progress (button hidden until choice made)
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.totalScenarios}`,
+      buttonText: 'Pick ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Instructions
     const instr = document.createElement('p');
@@ -268,28 +272,18 @@ export class Level07 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.totalScenarios} correct`);
 
-    // Next button
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '16px';
-
-      if (this.currentScenario < this.totalScenarios - 1) {
-        nextBtn.textContent = 'Next Scenario';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(this.gameAreaEl);
-        });
-      } else {
-        nextBtn.textContent = 'See Results';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-
-      resultArea.appendChild(nextBtn);
-    }, 500);
+    // Update top bar button to Next or See Results
+    if (this.currentScenario < this.totalScenarios - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(this.gameAreaEl);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {

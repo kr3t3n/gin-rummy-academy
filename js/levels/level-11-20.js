@@ -71,10 +71,13 @@ export class Level11 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `Scenario ${this.currentScenario + 1}/3`;
-    gameArea.appendChild(progress);
+    // Top bar with progress and Check button
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/3`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkAnswer(scenario)
+    });
+    gameArea.appendChild(topBar);
 
     // Explain Gin blocks layoffs
     const note = document.createElement('p');
@@ -120,13 +123,6 @@ export class Level11 extends Level {
     yourSection.appendChild(dwRow);
     gameArea.appendChild(yourSection);
 
-    // Check button
-    const checkBtn = document.createElement('button');
-    checkBtn.className = 'btn btn-primary';
-    checkBtn.textContent = 'Check Layoffs';
-    checkBtn.addEventListener('click', () => this.checkAnswer(scenario));
-    gameArea.appendChild(checkBtn);
-
     const resultArea = document.createElement('div');
     resultArea.id = 'result-area';
     resultArea.style.marginTop = '16px';
@@ -156,21 +152,12 @@ export class Level11 extends Level {
       resultArea.innerHTML = `<div style="color: var(--error);">Not quite. The valid layoffs are highlighted in green.</div>`;
     }
 
-    setTimeout(() => this.addNextButton(resultArea), 300);
-  }
-
-  addNextButton(container) {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-primary';
-    btn.style.marginTop = '12px';
+    // Update top bar button
     if (this.currentScenario < 2) {
-      btn.textContent = 'Next';
-      btn.addEventListener('click', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
     } else {
-      btn.textContent = 'Complete';
-      btn.addEventListener('click', () => { this.score = this.correctCount; this.complete(this.correctCount >= 3); });
+      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 3); });
     }
-    container.appendChild(btn);
   }
 
   reset() { this.currentScenario = 0; this.correctCount = 0; super.reset(); }
@@ -207,10 +194,15 @@ export class Level12 extends Level {
     gameArea.innerHTML = '';
     const s = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/5`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/5`,
+      buttonText: 'Choose ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     const card = document.createElement('div');
     card.style.cssText = 'background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; text-align: center; margin: 16px 0;';
@@ -256,19 +248,13 @@ export class Level12 extends Level {
     `;
 
     this.gameAreaEl.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-    setTimeout(() => {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-primary';
-      btn.style.marginTop = '12px';
-      if (this.currentScenario < 4) {
-        btn.textContent = 'Next';
-        btn.addEventListener('click', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
-      } else {
-        btn.textContent = 'Complete';
-        btn.addEventListener('click', () => { this.score = this.correctCount; this.complete(this.correctCount >= 5); });
-      }
-      result.appendChild(btn);
-    }, 300);
+
+    // Update top bar button
+    if (this.currentScenario < 4) {
+      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+    } else {
+      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 5); });
+    }
   }
 
   reset() { this.currentScenario = 0; this.correctCount = 0; super.reset(); }
@@ -304,10 +290,13 @@ export class Level13 extends Level {
     gameArea.innerHTML = '';
     const s = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/4`;
-    gameArea.appendChild(progress);
+    // Top bar with Check button
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/4`,
+      buttonText: 'Check ✓',
+      onButtonClick: () => this.checkAnswer(s)
+    });
+    gameArea.appendChild(topBar);
 
     const card = document.createElement('div');
     card.style.cssText = 'background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin: 16px 0;';
@@ -340,13 +329,12 @@ export class Level13 extends Level {
     input.placeholder = '?';
     input.autocomplete = 'off';
 
-    const checkBtn = document.createElement('button');
-    checkBtn.className = 'btn btn-primary';
-    checkBtn.textContent = 'Check';
-    checkBtn.addEventListener('click', () => this.checkAnswer(s));
+    // Submit on Enter
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.checkAnswer(s);
+    });
 
     inputContainer.appendChild(input);
-    inputContainer.appendChild(checkBtn);
     gameArea.appendChild(inputContainer);
 
     const result = document.createElement('div');
@@ -368,19 +356,13 @@ export class Level13 extends Level {
     `;
 
     input.disabled = true;
-    setTimeout(() => {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-primary';
-      btn.style.marginTop = '12px';
-      if (this.currentScenario < 3) {
-        btn.textContent = 'Next';
-        btn.addEventListener('click', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
-      } else {
-        btn.textContent = 'Complete';
-        btn.addEventListener('click', () => { this.score = this.correctCount; this.complete(this.correctCount >= 4); });
-      }
-      result.appendChild(btn);
-    }, 300);
+
+    // Update top bar button
+    if (this.currentScenario < 3) {
+      this.updateTopBarButton('Next →', () => { this.currentScenario++; this.showScenario(this.gameAreaEl); });
+    } else {
+      this.updateTopBarButton('Finish', () => { this.score = this.correctCount; this.complete(this.correctCount >= 4); });
+    }
   }
 
   reset() { this.currentScenario = 0; this.correctCount = 0; super.reset(); }
@@ -459,11 +441,15 @@ export class Level14 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    // Progress
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+      buttonText: 'Pick ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Explanation
     const intro = document.createElement('div');
@@ -526,27 +512,18 @@ export class Level14 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    // Add next button
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '12px';
-
-      if (this.currentScenario < this.scenarios.length - 1) {
-        nextBtn.textContent = 'Next';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(gameArea);
-        });
-      } else {
-        nextBtn.textContent = 'Complete';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button
+    if (this.currentScenario < this.scenarios.length - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(gameArea);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {
@@ -637,10 +614,15 @@ export class Level15 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+      buttonText: 'Choose ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Opponent's discards
     const discardSection = document.createElement('div');
@@ -713,26 +695,18 @@ export class Level15 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '12px';
-
-      if (this.currentScenario < this.scenarios.length - 1) {
-        nextBtn.textContent = 'Next';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(gameArea);
-        });
-      } else {
-        nextBtn.textContent = 'Complete';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button
+    if (this.currentScenario < this.scenarios.length - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(gameArea);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {
@@ -828,10 +802,15 @@ export class Level16 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+      buttonText: 'Pick ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Opponent info section
     const oppSection = document.createElement('div');
@@ -913,26 +892,18 @@ export class Level16 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '12px';
-
-      if (this.currentScenario < this.scenarios.length - 1) {
-        nextBtn.textContent = 'Next';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(gameArea);
-        });
-      } else {
-        nextBtn.textContent = 'Complete';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button
+    if (this.currentScenario < this.scenarios.length - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(gameArea);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {
@@ -1018,10 +989,15 @@ export class Level17 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+      buttonText: 'Choose ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Situation
     const situationEl = document.createElement('div');
@@ -1040,13 +1016,13 @@ export class Level17 extends Level {
     optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-width: 350px; margin: 0 auto;';
 
     scenario.options.forEach((option, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn';
-      btn.dataset.idx = idx;
-      btn.textContent = option.text;
-      btn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
-      btn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
-      optionsContainer.appendChild(btn);
+      const optBtn = document.createElement('button');
+      optBtn.className = 'choice-btn';
+      optBtn.dataset.idx = idx;
+      optBtn.textContent = option.text;
+      optBtn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
+      optBtn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
+      optionsContainer.appendChild(optBtn);
     });
     gameArea.appendChild(optionsContainer);
 
@@ -1086,26 +1062,18 @@ export class Level17 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '12px';
-
-      if (this.currentScenario < this.scenarios.length - 1) {
-        nextBtn.textContent = 'Next';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(gameArea);
-        });
-      } else {
-        nextBtn.textContent = 'Complete';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button
+    if (this.currentScenario < this.scenarios.length - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(gameArea);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {
@@ -1191,10 +1159,15 @@ export class Level18 extends Level {
     gameArea.innerHTML = '';
     const scenario = this.scenarios[this.currentScenario];
 
-    const progress = document.createElement('div');
-    progress.className = 'selection-count';
-    progress.textContent = `${this.currentScenario + 1}/${this.scenarios.length}`;
-    gameArea.appendChild(progress);
+    // Top bar
+    const topBar = this.createTopBar({
+      progress: `${this.currentScenario + 1}/${this.scenarios.length}`,
+      buttonText: 'Choose ↓',
+      onButtonClick: () => {}
+    });
+    const btn = topBar.querySelector('.top-bar-btn');
+    if (btn) btn.style.opacity = '0.3';
+    gameArea.appendChild(topBar);
 
     // Late game badge
     const badge = document.createElement('div');
@@ -1219,13 +1192,13 @@ export class Level18 extends Level {
     optionsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; max-width: 350px; margin: 0 auto;';
 
     scenario.options.forEach((option, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn';
-      btn.dataset.idx = idx;
-      btn.textContent = option.text;
-      btn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
-      btn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
-      optionsContainer.appendChild(btn);
+      const optBtn = document.createElement('button');
+      optBtn.className = 'choice-btn';
+      optBtn.dataset.idx = idx;
+      optBtn.textContent = option.text;
+      optBtn.style.cssText = 'padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-light); cursor: pointer; text-align: left;';
+      optBtn.addEventListener('click', () => this.handleAnswer(option, scenario, gameArea));
+      optionsContainer.appendChild(optBtn);
     });
     gameArea.appendChild(optionsContainer);
 
@@ -1243,15 +1216,15 @@ export class Level18 extends Level {
 
     const resultArea = document.getElementById('result-area');
 
-    gameArea.querySelectorAll('.choice-btn').forEach(btn => {
-      btn.style.pointerEvents = 'none';
-      const idx = parseInt(btn.dataset.idx);
+    gameArea.querySelectorAll('.choice-btn').forEach(choiceBtn => {
+      choiceBtn.style.pointerEvents = 'none';
+      const idx = parseInt(choiceBtn.dataset.idx);
       if (scenario.options[idx].correct) {
-        btn.style.borderColor = 'var(--success)';
-        btn.style.background = 'rgba(0, 210, 106, 0.2)';
-      } else if (btn.textContent === selectedOption.text && !isCorrect) {
-        btn.style.borderColor = 'var(--error)';
-        btn.style.background = 'rgba(255, 107, 107, 0.2)';
+        choiceBtn.style.borderColor = 'var(--success)';
+        choiceBtn.style.background = 'rgba(0, 210, 106, 0.2)';
+      } else if (choiceBtn.textContent === selectedOption.text && !isCorrect) {
+        choiceBtn.style.borderColor = 'var(--error)';
+        choiceBtn.style.background = 'rgba(255, 107, 107, 0.2)';
       }
     });
 
@@ -1264,26 +1237,18 @@ export class Level18 extends Level {
 
     this.updateProgress(`${this.correctCount}/${this.scenarios.length} correct`);
 
-    setTimeout(() => {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn btn-primary';
-      nextBtn.style.marginTop = '12px';
-
-      if (this.currentScenario < this.scenarios.length - 1) {
-        nextBtn.textContent = 'Next';
-        nextBtn.addEventListener('click', () => {
-          this.currentScenario++;
-          this.showScenario(gameArea);
-        });
-      } else {
-        nextBtn.textContent = 'Complete';
-        nextBtn.addEventListener('click', () => {
-          this.score = this.correctCount;
-          this.complete(this.correctCount >= this.passingScore);
-        });
-      }
-      resultArea.appendChild(nextBtn);
-    }, 300);
+    // Update top bar button
+    if (this.currentScenario < this.scenarios.length - 1) {
+      this.updateTopBarButton('Next →', () => {
+        this.currentScenario++;
+        this.showScenario(gameArea);
+      });
+    } else {
+      this.updateTopBarButton('Finish', () => {
+        this.score = this.correctCount;
+        this.complete(this.correctCount >= this.passingScore);
+      });
+    }
   }
 
   reset() {

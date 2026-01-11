@@ -4,7 +4,7 @@
  */
 
 import { initLayout } from './layout.js';
-import { loadProgress, getAllLevelsStatus } from './progress.js';
+import { loadProgress, getAllLevelsStatus, unlockAllLevels, resetProgress } from './progress.js';
 import { Level01 } from './levels/level-01.js';
 import { Level02 } from './levels/level-02.js';
 import { Level03 } from './levels/level-03.js';
@@ -460,15 +460,22 @@ function showAdventureMap() {
     chaptersContainer.appendChild(chapterEl);
   }
 
-  // Re-read intro button
+  // Footer with actions
   const footer = document.createElement('div');
   footer.className = 'map-footer';
-  footer.innerHTML = `<button class="btn-link" id="reread-intro">📖 Re-read the story of Gin Rummy</button>`;
+  footer.innerHTML = `
+    <button class="btn-link" id="reread-intro">📖 Re-read the story of Gin Rummy</button>
+    <button class="btn-link" id="unlock-all" style="color: var(--success);">🔓 Unlock All Levels</button>
+  `;
   map.appendChild(footer);
 
   container.appendChild(map);
 
   document.getElementById('reread-intro').addEventListener('click', () => showIntroStory(0));
+  document.getElementById('unlock-all').addEventListener('click', () => {
+    unlockAllLevels();
+    showAdventureMap(); // Refresh to show unlocked state
+  });
 }
 
 /**
