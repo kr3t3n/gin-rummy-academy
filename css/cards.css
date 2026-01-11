@@ -134,30 +134,30 @@
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Card content layout */
+/* Card content layout - rank and suit on same line for compact cascading */
 .card-corner {
   position: absolute;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   line-height: 1;
-  gap: 0;
+  gap: 1px;
 }
 
 .card-corner.top-left {
   top: 6%;
-  left: 8%;
+  left: 6%;
 }
 
 .card-corner.bottom-right {
   bottom: 6%;
-  right: 8%;
+  right: 6%;
   transform: rotate(180deg);
 }
 
 .card-rank {
   font-family: var(--font-card);
-  font-size: clamp(11px, calc(var(--card-width) * 0.22), 20px);
+  font-size: clamp(10px, calc(var(--card-width) * 0.2), 18px);
   font-weight: 700;
   line-height: 1;
 }
@@ -165,7 +165,6 @@
 .card-suit-small {
   font-size: clamp(8px, calc(var(--card-width) * 0.16), 14px);
   line-height: 1;
-  margin-top: -1px;
 }
 
 .card-suit-center {
